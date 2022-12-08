@@ -9,44 +9,62 @@ import random
 import sqlite3
 
 registering = ["Joey", "Mai", "Ken", "Marek", "Cyrius", "Alexis"]
-# scores = {name: 0 for name in registering}
-# scores = {1:["Joey", 1], 2:["Mai", 2], 3:["Ken", 2], 4:["Marek", 0], 5:["Cyrius", 0], 6: ["Alexis", 1]}
-
 scores = {"Joey": 1, "Mai": 2, "Ken": 2, "Marek": 0, "Cyrius": 0, "Alexis": 1}
 
 # TODO - add a point counter so that you pair players with the same points
-
 # conclusion -> use sqlite for easy queries
-
 con = sqlite3.connect("tourney_db.db")
 cur = con.cursor()
-cur.execute("""CREATE TABLE Tournament(id, name, surname, score, win, loss, draw)""")
-cur.execute("CREATE TABLE matchups(matchup, player1, player2)")
-cur.execute("""
-    INSERT INTO Tournament VALUES 
-        (1, 'Anthony', 'Guts', 0, 0, 0, 0),
-        (2, 'Joey', 'Ryoma', 0, 0, 0 ,0),
-        (3, 'Mai', 'Valentine', 0, 0, 0 ,0)
-    """)
 
 
-info_list = [
-    (4, "Ryo", "Saeba"),
-    (5, "Ranni", "Zewich"),
-    (6, "Neils", "Bore"),
-    (7, "Jensen", "Kimmit")
-]
-cur.executemany(("""INSERT INTO Tournament VALUES (?, ?, ?, 0, 0, 0, 0)"""), info_list)
-# print(list(players_table))
-players_table = cur.execute("""SELECT * from Tournament""")
-print(players_table.fetchall())
+def db_create():
+    cur.execute("""CREATE TABLE Tournament(id, name, surname, score, win, loss, draw)""")
+    cur.execute("CREATE TABLE matchups(matchup, player1, player2)")
+
+    info_list = [
+        (1, 'Anthony', 'Guts'),
+        (2, 'Joey', 'Ryoma'),
+        (3, 'Mai', 'Valentine'),
+        (4, "Ryo", "Saeba"),
+        (5, "Ranni", "Zewich"),
+        (6, "Neils", "Bore"),
+        (7, "Jensen", "Kimmit")
+    ]
+
+    cur.executemany(("""INSERT INTO Tournament VALUES (?, ?, ?, 0, 0, 0, 0)"""), info_list)
+
+    # print(list(players_table))
+    players_table = cur.execute("""SELECT * from Tournament""")
+    print(players_table.fetchall())
+    con.commit()
+
+
+def update_points() -> str:
+    scores = cur.execute("""SELECT name, win, draw FROM Tournament""").fetchall()
+    points = [[play[1]*2 + play[2], play[0]] for play in scores]
+
+    cur.executemany("""UPDATE Tournament SET score=? WHERE name= ? """, points)
+    con.commit()
+
+    return "Points updated"
+
+def read_contestants()->list:
+    """ return list of contestants"""
+    call = cur.execute("""SELECT name, surname FROM Tournament""")
+    return call.fetchall()
+
+def update_score(results: list)->str:
+    """2 scenarios : all the results in one go ot just a result / edit| NEED TO KEEP ROUNDS INFORMATIONS"""
+    cur.executemany("""UPDATE Tournament SET win=?, loss=?, draw=? WHERE name= ? """, results)
+    con.commit()
+    return "Scores updated"
 
 
 def score_sort(scores: dict) -> list:
     """
     create a sorted list of players where index 0 is the highest
     project : create my own algorythm to scale for big tournaments
-    """
+"""
     standings = [[x, y] for x, y in scores.items()]
     return sorted(standings, key=lambda x: x[1], reverse=True)
 
@@ -73,9 +91,26 @@ def rounds(prev_match: list, standings: list) -> list:
     print(prev_match, standings)
     return []
 
-
-# test = pairing(registering)
-# print(test)
-# standings = score_sort(scores)
-# print(standings)
-# print([standings.pop() for x in range(2)])
+if __name__ == "__main__":
+    rez = [(0, 1, 0, "Anthony"),
+           (1, 0, 0, "Joey"),
+           (0, 0, 1, "Mai"),
+           (1,0,1, "Ranni"),
+           (0, 1, 0, "Ryo"),
+           (1, 0, 1, "Neils"),
+           (2, 1, 0, "Jensen")
+           ]
+    update_score(rez)
+    players_table = cur.execute("""SELECT * from Tournament""")
+    print(players_table.fetchall())
+    print(update_points())
+    players_table = cur.execute("""SELECT * from Tournament""")
+    print(players_table.fetchall())
+    #db_create()
+    #print(read_contestants())
+    # test = pairing(registering)
+    # print(test)
+    # standings = score_sort(scores)
+    # print(standings)
+    # print([standings.pop() for x in range(2)])
+    pass
