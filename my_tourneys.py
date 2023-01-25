@@ -1,7 +1,7 @@
 # project structure
 # KIVYMD app to make simple tourneys
 # Start with simple random pairing + keep track of previous pairing for next round
-# Simple database to keep track of informations and extract results in excel ?
+# Simple database to keep track of informations and extract results in Excel ?
 # Implement app in store
 # Then :
 # swiss round system but make it scalable for more
@@ -78,23 +78,34 @@ def rand_pairing(players: list) -> (list, str):
     return matches, bye_player_name
 
 
-def table_pairing(pairs: list) -> list:
+def table_pairing(pairs: list, t_id: int) -> list:
     # Takes a list of player id pairings and return tuples of names for KIVYMDtable
     # format [[p1, p2]]
     pairing = []
+    # TODO check if this code is ok for feeding the matches table
+    # Need to ID the tourney, transform into OOP ?
+    cur.executemany(
+        f"""INSERT INTO matches(t_id, p1_id, p2_id) VALUES ({t_id }, ?, ?)""",
+        pairs
+    )
     for pair in pairs:
         players_names = cur.execute("""SELECT p_name, p_surname FROM players WHERE  p_id = ? OR p_id = ?""", pair)
         pairing.append(tuple(players_names))
+    con.commit()
 
     return pairing
 
 
-def pairing_process() -> (list, list):
+def pairing_process(t_id: int) -> (list, list):
     # TODO : call to the tourney ID to get players from this tourney + keep track of the previous matches for next match making
+    # Create a list of IDs  from players list
     players = [p[0] for p in read_players()]
+    # use function to create pairing fro ids
     pairing, bye_player = rand_pairing(players)
+    # get bye player text name from table and use function to convert pairing list from ids to actual string.
     bye_player_name = cur.execute("""SELECT p_name, p_surname FROM players WHERE  p_id = ?""", [bye_player]).fetchall()
-    table_show = table_pairing(pairing)
+    table_show = table_pairing(pairing, t_id)
+    #ToDO feed table 'matches' for follow up
 
     return table_show, bye_player_name
 
@@ -167,17 +178,17 @@ def update_points() -> str:
 
 
 if __name__ == "__main__":
-    # db_create()
-    # info_list = [
-    #     ('Anthony', 'Guts'),
-    #     ('Joey', 'Ryoma'),
-    #     ('Mai', 'Valentine'),
-    #     ("Ryo", "Saeba"),
-    #     ("Ranni", "Zewich"),
-    #     ("Neils", "Bohred"),
-    #     ("Jensen", "Kimmit")
-    # ]
-    # enroll_players(info_list)
+    db_create()
+    info_list = [
+        ('Anthony', 'Guts'),
+        ('Joey', 'Ryoma'),
+        ('Mai', 'Valentine'),
+        ("Ryo", "Saeba"),
+        ("Ranni", "Zewich"),
+        ("Neils", "Bohred"),
+        ("Jensen", "Kimmit")
+    ]
+    enroll_players(info_list)
     # play_list = read_players()
     # id_list = [p[0] for p in play_list]
     # print(id_list)
@@ -185,5 +196,6 @@ if __name__ == "__main__":
     # print(pairing_id)
     # print(table_pairing(pairing_id[0]))
     #kivy table needs a tuple with all the row data : player1, player2...
-    print(pairing_process())
+    print(pairing_process(1))
+    print(cur.execute("""SELECT * FROM matches""").fetchall())
 
