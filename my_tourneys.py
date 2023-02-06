@@ -17,7 +17,7 @@ cur = con.cursor()
 
 def db_create():
     # 3 tables for relation : tourneys, players and matches
-    #tourneys is the local save of all tourney keys
+    # tourneys is the local save of all tourney keys
     # players are a list of all players with a unique ID
     # matches allows to follow on the matches and get points / results from it
 
@@ -43,19 +43,20 @@ def db_create():
     con.commit()
 
 
-def enroll_players(p: list)->bool:
-    #check the list for format
-    #check for player already existing ?
-    #error messages if needed
+def enroll_players(p: list) -> bool:
+    # check the list for format
+    # check for player already existing ?
+    # error messages if needed
 
     cur.executemany(
         """INSERT INTO  players(p_name, p_surname) VALUES (?, ?)""",
-        p)
+        p
+    )
     con.commit()
     return True
 
 
-def get_player_id(infos) -> list:
+def get_player_id(infos: list) -> list:
     # find players ID with their name in case we need it
     names = cur.execute("""SELECT * FROM players WHERE (p_name =? AND p_surname= ?)""", infos)
     return names.fetchall()
@@ -63,11 +64,15 @@ def get_player_id(infos) -> list:
 
 def read_players() -> list:
     """ return list of contestants"""
+    # TODO : select players from the specific tourney you want
     call = cur.execute("""SELECT * FROM players""")
     return call.fetchall()
 
 
 def rand_pairing(players: list) -> (list, str):
+    """
+
+    """
     random.shuffle(players)
     bye_player_name = players.pop() if len(players) % 2 else None
     matches = []
@@ -79,8 +84,10 @@ def rand_pairing(players: list) -> (list, str):
 
 
 def table_pairing(pairs: list, t_id: int) -> list:
-    # Takes a list of player id pairings and return tuples of names for KIVYMDtable
-    # format [[p1, p2]]
+    """
+    Takes a list of player id pairings and return tuples of names for KIVYMDtable
+    format [[p1, p2]]
+    """
     pairing = []
     # TODO check if this code is ok for feeding the matches table
     # Need to ID the tourney, transform into OOP ?
@@ -97,10 +104,13 @@ def table_pairing(pairs: list, t_id: int) -> list:
 
 
 def pairing_process(t_id: int) -> (list, list):
-    # TODO : call to the tourney ID to get players from this tourney + keep track of the previous matches for next match making
+    """
+    Main process calling all pairing function in order
+    """
     # Create a list of IDs  from players list
+    # TODO : use the t_id to get the good list of players
     players = [p[0] for p in read_players()]
-    # use function to create pairing fro ids
+    # use function to create pairing from ids
     pairing, bye_player = rand_pairing(players)
     # get bye player text name from table and use function to convert pairing list from ids to actual string.
     bye_player_name = cur.execute("""SELECT p_name, p_surname FROM players WHERE  p_id = ?""", [bye_player]).fetchall()
@@ -111,8 +121,11 @@ def pairing_process(t_id: int) -> (list, list):
 
 
 def round_pairing(players: list, previous_matches: list, bye_list: list) -> (list, str):
-    """remove a random player if uneven number of players
-    make sure he wasn't already 'bye' previous round"""
+    """
+    remove a random player if uneven number of players
+    make sure he wasn't already 'bye' previous round
+    """
+    # TODO : is this funciton still relevant with new structure ?
     # First ID the bye player and pop it off the list
     rand_num = random.randint(0, len(players)-1)
     if len(players) % 2:
@@ -143,20 +156,6 @@ def round_pairing(players: list, previous_matches: list, bye_list: list) -> (lis
     return pairings, bye_player_name
 
 
-def read_scores() -> list:
-    #USELESS WITH NEW SYSTEM
-    """get a dict of the scores and players ID"""
-    call = cur.execute("""SELECT name, score FROM Tournament""")
-    return call.fetchall()
-
-
-def match_result(results: list)->str:
-    """2 scenarios : all the results in one go ot just a result / edit| NEED TO KEEP ROUNDS INFORMATIONS"""
-    cur.executemany("""UPDATE Tournament SET win=?, loss=?, draw=? WHERE name= ? """, results)
-    con.commit()
-    return "Scores updated"
-
-
 def score_sort(scores: list) -> list:
     """
     create a sorted list of players where index 0 is the highest
@@ -164,12 +163,21 @@ def score_sort(scores: list) -> list:
     """
     return sorted(scores, key=lambda x: x[1], reverse=True)
 
-def update_points() -> str:
-    #USELESS NOW WITH NEW TABLE FORMAT ?
-    scores = cur.execute("""SELECT name, win, draw FROM Tournament""").fetchall()
-    points = [[play[1]*2 + play[2], play[0]] for play in scores]
 
-    cur.executemany("""UPDATE Tournament SET score=? WHERE name= ? """, points)
+def enter_results(results: list) -> str:
+    """
+    Feeding the matches table with the result entered by user
+    Format must be : [(p1_score, p2_score, t_id, p_id_1, p_id_2 ), ... )
+    """
+
+    cur.executemany(
+        """
+        UPDATE matches 
+        SET p1_score = ?, p2_score = ?  
+        WHERE t_id = ? AND p1_id = ? AND p2_id = ?  
+        """,
+        results
+    )
     con.commit()
 
     return "Points updated"
@@ -178,24 +186,29 @@ def update_points() -> str:
 
 
 if __name__ == "__main__":
-    db_create()
-    info_list = [
-        ('Anthony', 'Guts'),
-        ('Joey', 'Ryoma'),
-        ('Mai', 'Valentine'),
-        ("Ryo", "Saeba"),
-        ("Ranni", "Zewich"),
-        ("Neils", "Bohred"),
-        ("Jensen", "Kimmit")
-    ]
-    enroll_players(info_list)
+    # db_create()
+    # info_list = [
+    #     ('Anthony', 'Guts'),
+    #     ('Joey', 'Ryoma'),
+    #     ('Mai', 'Valentine'),
+    #     ("Ryo", "Saeba"),
+    #     ("Ranni", "Zewich"),
+    #     ("Neils", "Bohred"),
+    #     ("Jensen", "Kimmit")
+    # ]
+    # enroll_players(info_list)
     # play_list = read_players()
     # id_list = [p[0] for p in play_list]
     # print(id_list)
     # pairing_id = rand_pairing(id_list)
     # print(pairing_id)
     # print(table_pairing(pairing_id[0]))
-    #kivy table needs a tuple with all the row data : player1, player2...
-    print(pairing_process(1))
+    # kivy table needs a tuple with all the row data : player1, player2...
+    # print(pairing_process(1))
+    print(cur.execute("""SELECT * FROM matches""").fetchall())
+    results = [(1, 2, 1, 4, 7),
+               (2, 0, 1, 5, 1),
+               (1, 1, 1, 2, 6)]
+    enter_results(results)
     print(cur.execute("""SELECT * FROM matches""").fetchall())
 
