@@ -8,8 +8,8 @@
 # visualisation for tournaments, pairing, points
 # Class system for tourneys to make it customisable later
 
-import random
-import sqlite3
+import random, sqlite3, datetime
+
 
 con = sqlite3.connect("tourney_db.db")
 cur = con.cursor()
@@ -35,7 +35,7 @@ def db_create():
     )
     cur.execute(
         """CREATE TABLE tourneys(
-        t_id, 
+        t_id INTEGER PRIMARY KEY AUTOINCREMENT, 
         tourney_type, 
         tourney_date, 
         tourney_name)"""
@@ -55,6 +55,25 @@ def enroll_players(p: list) -> bool:
     con.commit()
     return True
 
+def create_tourney(t_type: str, t_name):
+    """
+    initialise tournament
+    """
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    params = (t_type, today, t_name )
+    command = """INSERT INTO tourneys(?, ?, ?)"""
+    cur.execute(command, params)
+    con.commit()
+
+    return f"Tournament {t_name} was created"
+
+
+def get_tourneys_list():
+    """ Returns the list of tournaments and their details"""
+
+    cur.execute("""SELECT * from tourneys""")
+    return cur.fetchall()
+
 
 def get_player_id(infos: list) -> list:
     # find players ID with their name in case we need it
@@ -63,15 +82,15 @@ def get_player_id(infos: list) -> list:
 
 
 def read_players() -> list:
-    """ return list of contestants"""
-    # TODO : select players from the specific tourney you want
+    """ get all registered players informations """
+
     call = cur.execute("""SELECT * FROM players""")
     return call.fetchall()
 
 
 def rand_pairing(players: list) -> (list, str):
     """
-
+    Randomize players and pair them
     """
     random.shuffle(players)
     bye_player_name = players.pop() if len(players) % 2 else None
@@ -109,17 +128,17 @@ def pairing_process(t_id: int) -> (list, list):
     """
     # Create a list of IDs  from players list
     # TODO : use the t_id to get the good list of players
+    # ToDO feed table 'matches' for follow up
     players = [p[0] for p in read_players()]
     # use function to create pairing from ids
     pairing, bye_player = rand_pairing(players)
     # get bye player text name from table and use function to convert pairing list from ids to actual string.
     bye_player_name = cur.execute("""SELECT p_name, p_surname FROM players WHERE  p_id = ?""", [bye_player]).fetchall()
     table_show = table_pairing(pairing, t_id)
-    #ToDO feed table 'matches' for follow up
 
     return table_show, bye_player_name
 
-
+### Old round pairin function
 def round_pairing(players: list, previous_matches: list, bye_list: list) -> (list, str):
     """
     remove a random player if uneven number of players
@@ -142,7 +161,7 @@ def round_pairing(players: list, previous_matches: list, bye_list: list) -> (lis
     # Then let's make the pairings and avoid having the same matches as before
     # we don't handle the case when a pairing already exists but it's the last pairing !
     # previous matches not identified for reversed lists : [A, B] != [B,A]
-    #Error : list index out of range
+    # Error : list index out of range
     pair_2 = 0
     pairings = list()
     print(players)
@@ -163,6 +182,15 @@ def score_sort(scores: list) -> list:
     """
     return sorted(scores, key=lambda x: x[1], reverse=True)
 
+def players_scores(t_id: int):
+    """ give current scores for tourney"""
+
+    query = """get scores from the matches tables"""
+    players = ["list of players id to loop through"]
+    #loop through players executing a query to get their score
+    scores = cur.execute(query, t_id)
+
+    return scores.fetchall()
 
 def enter_results(results: list) -> str:
     """
