@@ -16,29 +16,47 @@ cur = con.cursor()
 
 
 def db_create():
-    # 3 tables for relation : tourneys, players and matches
+    # 4 tables for relation : tourneys, players, matches and player_matches
     # tourneys is the local save of all tourney keys
     # players are a list of all players with a unique ID
-    # matches allows to follow on the matches and get points / results from it
+    # matches allows to follow on the matches and get unique ID
+    # player_matches stores the result for each player and allows to retrieve and calculate results
+    # The key to this data schema is understanding constraints, foreign keys and compound primary key
+
 
     cur.execute(
         """CREATE TABLE players(
         p_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-        p_name, 
-        p_surname)"""
+        p_name NOT NULL, 
+        p_surname NOT NULL
+        )"""
     )
+
     cur.execute(
         """CREATE TABLE matches(
-        t_id, 
-        p1_id, p2_id, 
-        p1_score, p2_score)"""
+        m_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        t_id NOT NULL,
+        round INT NOT NULL
+        )"""
     )
+
+    cur.execute(
+        """CREATE TABLE player_matches(
+        m_id INT NOT NULL FOREIGN KEY REFERENCES matches(m_id), 
+        p_id INT NOT NULL FOREIGN KEY REFERENCES players(p_id), 
+        p_result,
+        p_score, 
+        CONSTRAINT PK_matchPlayer PRIMARY KEY (m_id, p_id)
+        )"""
+    )
+
     cur.execute(
         """CREATE TABLE tourneys(
         t_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-        tourney_type, 
-        tourney_date, 
-        tourney_name)"""
+        t_type, 
+        t_date, 
+        t_name
+        )"""
     )
     con.commit()
 
@@ -60,7 +78,7 @@ def create_tourney(t_type: str, t_name):
     initialise tournament
     """
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    params = (t_type, today, t_name )
+    params = (t_type, today, t_name)
     command = """INSERT INTO tourneys(?, ?, ?)"""
     cur.execute(command, params)
     con.commit()
@@ -102,6 +120,41 @@ def rand_pairing(players: list) -> (list, str):
     return matches, bye_player_name
 
 
+def create_match(pairing: list, t_id: int, round: int, bye_player) -> list:
+    """
+    feeds the matches table for the matches of this round
+    returns the matches ID for this round
+    """
+
+    matches = [(t_id, round) for x in range(len(pairing))]
+    if bye_player:
+        matches.append((t_id, round))
+
+    cur.executemany(
+        f"""INSERT INTO matches(t_id, round) VALUES (?, ?)""",
+        matches
+    )
+    round_id = (t_id, round)
+    matches_ids = ("SELECT m_id FROM matches WHERE t_id = ? AND round = ?", round_id)
+    return cur.execute(matches_ids).fetchall()
+
+def player_matches(m_ids: list, pairing: list, bye_player):
+    """
+    feed the players id for the matches created previously
+    """
+    if bye_player:
+        pairing.append((0,0))
+
+    matches = []
+    for x in range(len(m_ids)):
+        matches.append(m_ids[x], pairing[x][0])
+        matches.append(m_ids[x], pairing[x][1])
+
+
+    p_matches = ("""INSERT INTO player_matches(m_id, p_id) VALUES (?, ?) """, matches)
+    cur.execute(p_matches)
+
+
 def table_pairing(pairs: list, t_id: int) -> list:
     """
     Takes a list of player id pairings and return tuples of names for KIVYMDtable
@@ -110,10 +163,7 @@ def table_pairing(pairs: list, t_id: int) -> list:
     pairing = []
     # TODO check if this code is ok for feeding the matches table
     # Need to ID the tourney, transform into OOP ?
-    cur.executemany(
-        f"""INSERT INTO matches(t_id, p1_id, p2_id) VALUES ({t_id }, ?, ?)""",
-        pairs
-    )
+
     for pair in pairs:
         players_names = cur.execute("""SELECT p_name, p_surname FROM players WHERE  p_id = ? OR p_id = ?""", pair)
         pairing.append(tuple(players_names))
@@ -128,12 +178,19 @@ def pairing_process(t_id: int) -> (list, list):
     """
     # Create a list of IDs  from players list
     # TODO : use the t_id to get the good list of players
-    # ToDO feed table 'matches' for follow up
+    # ToDO : make system to follow up on rounds
     players = [p[0] for p in read_players()]
+    round = 1
     # use function to create pairing from ids
     pairing, bye_player = rand_pairing(players)
+    round_matches = create_match(pairing, t_id, round, bye_player)
+    player_matches(round_matches, pairing, bye_player)
+
     # get bye player text name from table and use function to convert pairing list from ids to actual string.
-    bye_player_name = cur.execute("""SELECT p_name, p_surname FROM players WHERE  p_id = ?""", [bye_player]).fetchall()
+    bye_player_name = cur.execute(
+        """SELECT p_name, p_surname FROM players WHERE  p_id = ?""",
+        [bye_player]
+    ).fetchall()
     table_show = table_pairing(pairing, t_id)
 
     return table_show, bye_player_name
@@ -144,35 +201,35 @@ def round_pairing(players: list, previous_matches: list, bye_list: list) -> (lis
     remove a random player if uneven number of players
     make sure he wasn't already 'bye' previous round
     """
-    # TODO : is this funciton still relevant with new structure ?
-    # First ID the bye player and pop it off the list
-    rand_num = random.randint(0, len(players)-1)
-    if len(players) % 2:
-        while players[rand_num] in bye_list:
-            if rand_num < (len(players)-1):
-                rand_num += 1
-            else:
-                rand_num -= 1
-        bye_player_name = players.pop(rand_num)
-        print("bye : ", bye_player_name)
-    else:
-        bye_player_name = None
-
-    # Then let's make the pairings and avoid having the same matches as before
-    # we don't handle the case when a pairing already exists but it's the last pairing !
-    # previous matches not identified for reversed lists : [A, B] != [B,A]
-    # Error : list index out of range
-    pair_2 = 0
-    pairings = list()
-    print(players)
-    while players:
-        while [players[0], players[pair_2]] in previous_matches:
-            pair_2 += 1
-        pairings.append([players.pop(0), players.pop(pair_2)])
-        print(pairings)
-        pair_2 = 0
-        print(players)
-    return pairings, bye_player_name
+    # # TODO : is this function still relevant with new structure ?
+    # # First ID the bye player and pop it off the list
+    # rand_num = random.randint(0, len(players)-1)
+    # if len(players) % 2:
+    #     while players[rand_num] in bye_list:
+    #         if rand_num < (len(players)-1):
+    #             rand_num += 1
+    #         else:
+    #             rand_num -= 1
+    #     bye_player_name = players.pop(rand_num)
+    #     print("bye : ", bye_player_name)
+    # else:
+    #     bye_player_name = None
+    #
+    # # Then let's make the pairings and avoid having the same matches as before
+    # # we don't handle the case when a pairing already exists but it's the last pairing !
+    # # previous matches not identified for reversed lists : [A, B] != [B,A]
+    # # Error : list index out of range
+    # pair_2 = 0
+    # pairings = list()
+    # print(players)
+    # while players:
+    #     while [players[0], players[pair_2]] in previous_matches:
+    #         pair_2 += 1
+    #     pairings.append([players.pop(0), players.pop(pair_2)])
+    #     print(pairings)
+    #     pair_2 = 0
+    #     print(players)
+    # return pairings, bye_player_name
 
 
 def score_sort(scores: list) -> list:
@@ -182,12 +239,13 @@ def score_sort(scores: list) -> list:
     """
     return sorted(scores, key=lambda x: x[1], reverse=True)
 
+
 def players_scores(t_id: int):
     """ give current scores for tourney"""
 
     query = """get scores from the matches tables"""
     players = ["list of players id to loop through"]
-    #loop through players executing a query to get their score
+    # loop through players executing a query to get their score
     scores = cur.execute(query, t_id)
 
     return scores.fetchall()
