@@ -106,7 +106,7 @@ def read_players() -> list:
     return call.fetchall()
 
 
-def rand_pairing(players: list) -> (list, str):
+def rand_pairing(players: list) -> (list, int):
     """
     Randomize players and pair them
     """
@@ -120,7 +120,7 @@ def rand_pairing(players: list) -> (list, str):
     return matches, bye_player_name
 
 
-def create_match(pairing: list, t_id: int, round: int, bye_player) -> list:
+def create_match(pairing: list, t_id: int, round: int, bye_player: int) -> list:
     """
     feeds the matches table for the matches of this round
     returns the matches ID for this round
@@ -135,10 +135,11 @@ def create_match(pairing: list, t_id: int, round: int, bye_player) -> list:
         matches
     )
     round_id = (t_id, round)
-    matches_ids = ("SELECT m_id FROM matches WHERE t_id = ? AND round = ?", round_id)
-    return cur.execute(matches_ids).fetchall()
+    matches_ids = "SELECT m_id FROM matches WHERE t_id = ? AND round = ?"
+    return cur.execute(matches_ids, round_id).fetchall()
 
-def player_matches(m_ids: list, pairing: list, bye_player):
+
+def player_matches(m_ids: list, pairing: list, bye_player: int) -> None:
     """
     feed the players id for the matches created previously
     """
@@ -150,12 +151,11 @@ def player_matches(m_ids: list, pairing: list, bye_player):
         matches.append(m_ids[x], pairing[x][0])
         matches.append(m_ids[x], pairing[x][1])
 
+    p_matches = """INSERT INTO player_matches(m_id, p_id) VALUES (?, ?) """
+    cur.execute(p_matches, matches)
 
-    p_matches = ("""INSERT INTO player_matches(m_id, p_id) VALUES (?, ?) """, matches)
-    cur.execute(p_matches)
 
-
-def table_pairing(pairs: list, t_id: int) -> list:
+def table_pairing(pairs: list) -> list:
     """
     Takes a list of player id pairings and return tuples of names for KIVYMDtable
     format [[p1, p2]]
@@ -172,17 +172,28 @@ def table_pairing(pairs: list, t_id: int) -> list:
     return pairing
 
 
-def pairing_process(t_id: int) -> (list, list):
+def players_list(t_id: int) -> list:
+    """
+    takes a tournament id and gives back the list of players
+    """
+    command = """
+    SELECT p_id 
+    FROM players_matches 
+    INNER JOIN matches
+    ON player_matches.m_id = matches.m_id
+    WHERE t_id = ?
+    """
+    return cur.execute(command, t_id).fecthall()
+
+def pairing_process(t_id: int, round: int) -> (list, list):
     """
     Main process calling all pairing function in order
     """
     # Create a list of IDs  from players list
-    # TODO : use the t_id to get the good list of players
     # ToDO : make system to follow up on rounds
-    players = [p[0] for p in read_players()]
-    round = 1
     # use function to create pairing from ids
-    pairing, bye_player = rand_pairing(players)
+    players_pool = players_list(t_id)
+    pairing, bye_player = rand_pairing(players_pool)
     round_matches = create_match(pairing, t_id, round, bye_player)
     player_matches(round_matches, pairing, bye_player)
 
@@ -191,7 +202,7 @@ def pairing_process(t_id: int) -> (list, list):
         """SELECT p_name, p_surname FROM players WHERE  p_id = ?""",
         [bye_player]
     ).fetchall()
-    table_show = table_pairing(pairing, t_id)
+    table_show = table_pairing(pairing)
 
     return table_show, bye_player_name
 
@@ -249,6 +260,7 @@ def players_scores(t_id: int):
     scores = cur.execute(query, t_id)
 
     return scores.fetchall()
+
 
 def enter_results(results: list) -> str:
     """
