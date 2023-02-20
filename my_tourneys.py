@@ -42,10 +42,12 @@ def db_create():
 
     cur.execute(
         """CREATE TABLE player_matches(
-        m_id INT NOT NULL FOREIGN KEY REFERENCES matches(m_id), 
-        p_id INT NOT NULL FOREIGN KEY REFERENCES players(p_id), 
+        m_id INT NOT NULL, 
+        p_id INT NOT NULL,
         p_result,
-        p_score, 
+        p_score,
+        FOREIGN KEY (p_id) REFERENCES players(p_id), 
+        FOREIGN KEY (m_id) REFERENCES matches(m_id),
         CONSTRAINT PK_matchPlayer PRIMARY KEY (m_id, p_id)
         )"""
     )
@@ -53,9 +55,9 @@ def db_create():
     cur.execute(
         """CREATE TABLE tourneys(
         t_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-        t_type, 
+        t_type NOT NULL, 
         t_date, 
-        t_name
+        t_name UNIQUE NOT NULL 
         )"""
     )
     con.commit()
@@ -73,17 +75,21 @@ def enroll_players(p: list) -> bool:
     con.commit()
     return True
 
-def create_tourney(t_type: str, t_name):
+
+def create_tourney(t_type: str, t_name: str) -> int:
     """
-    initialise tournament
+    initialise tournament and return the ID of the generated tournament
     """
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    params = (t_type, today, t_name)
-    command = """INSERT INTO tourneys(?, ?, ?)"""
+    params = (t_type, today, t_name,)
+    command = """INSERT INTO tourneys(t_type, t_date, t_name) VALUES (?, ?, ?)"""
     cur.execute(command, params)
     con.commit()
 
-    return f"Tournament {t_name} was created"
+    query = f"SELECT t_id FROM tourneys WHERE t_name = ?"
+    id = cur.execute(query, (t_name,)).fetchall()
+
+    return id[0][0]
 
 
 def get_tourneys_list():
@@ -93,9 +99,10 @@ def get_tourneys_list():
     return cur.fetchall()
 
 
-def get_player_id(infos: list) -> list:
+def get_players_id(infos: list) -> list:
     # find players ID with their name in case we need it
     names = cur.execute("""SELECT * FROM players WHERE (p_name =? AND p_surname= ?)""", infos)
+
     return names.fetchall()
 
 
@@ -143,16 +150,23 @@ def player_matches(m_ids: list, pairing: list, bye_player: int) -> None:
     """
     feed the players id for the matches created previously
     """
-    if bye_player:
-        pairing.append((0,0))
 
+    # We need to adapt the matches list so that the bye player doesn't have an opponent.
+    # In case of bye player, the last match is not filled in the loop so that we add him only.
     matches = []
-    for x in range(len(m_ids)):
-        matches.append(m_ids[x], pairing[x][0])
-        matches.append(m_ids[x], pairing[x][1])
+    bye_count = 0
+    if bye_player:
+        bye_count = 1
+
+    for x in range(len(m_ids) - bye_count):
+        matches.append((m_ids[x][0], pairing[x][0]))
+        matches.append((m_ids[x][0], pairing[x][1]))
+
+    if bye_player:
+        matches.append((m_ids[len(m_ids) - 1][0], bye_player))
 
     p_matches = """INSERT INTO player_matches(m_id, p_id) VALUES (?, ?) """
-    cur.execute(p_matches, matches)
+    cur.executemany(p_matches, matches)
 
 
 def table_pairing(pairs: list) -> list:
@@ -183,17 +197,17 @@ def players_list(t_id: int) -> list:
     ON player_matches.m_id = matches.m_id
     WHERE t_id = ?
     """
-    return cur.execute(command, t_id).fecthall()
+    return cur.execute(command, t_id).fetchall()
 
-def pairing_process(t_id: int, round: int) -> (list, list):
+
+def pairing_process(t_id: int, round: int, players: list) -> (list, list):
     """
     Main process calling all pairing function in order
     """
     # Create a list of IDs  from players list
-    # ToDO : make system to follow up on rounds
     # use function to create pairing from ids
-    players_pool = players_list(t_id)
-    pairing, bye_player = rand_pairing(players_pool)
+    # players_pool = players_list(t_id)
+    pairing, bye_player = rand_pairing(players)
     round_matches = create_match(pairing, t_id, round, bye_player)
     player_matches(round_matches, pairing, bye_player)
 
@@ -270,9 +284,9 @@ def enter_results(results: list) -> str:
 
     cur.executemany(
         """
-        UPDATE matches 
-        SET p1_score = ?, p2_score = ?  
-        WHERE t_id = ? AND p1_id = ? AND p2_id = ?  
+        UPDATE player_matches 
+        SET p_result = ?, p_score = ?  
+        WHERE m_id = ? AND p_id = ?
         """,
         results
     )
@@ -284,29 +298,41 @@ def enter_results(results: list) -> str:
 
 
 if __name__ == "__main__":
-    # db_create()
+    db_create()
     # info_list = [
     #     ('Anthony', 'Guts'),
     #     ('Joey', 'Ryoma'),
     #     ('Mai', 'Valentine'),
     #     ("Ryo", "Saeba"),
     #     ("Ranni", "Zewich"),
-    #     ("Neils", "Bohred"),
-    #     ("Jensen", "Kimmit")
+    #     ("Neils", "Bohred")
     # ]
-    # enroll_players(info_list)
-    # play_list = read_players()
-    # id_list = [p[0] for p in play_list]
-    # print(id_list)
-    # pairing_id = rand_pairing(id_list)
-    # print(pairing_id)
+    info_list = [
+        ('Anthony', 'Guts'),
+        ('Joey', 'Ryoma'),
+        ('Mai', 'Valentine'),
+        ("Ryo", "Saeba"),
+        ("Ranni", "Zewich"),
+        ("Neils", "Bohred"),
+        ("Jensen", "Kimmit")
+    ]
+    enroll_players(info_list)
+    play_list = read_players()
+    id_list = [p[0] for p in play_list]
+    print("Players id table = ", id_list)
+    tourney_id = create_tourney("classic", "monday_tourney")
+    print("tourney id = ", tourney_id)
+    print(pairing_process(tourney_id, 1, id_list))
+    # a = cur.execute("""SELECT * from tourneys""").fetchall()
+    # print(a)
+
     # print(table_pairing(pairing_id[0]))
     # kivy table needs a tuple with all the row data : player1, player2...
     # print(pairing_process(1))
-    print(cur.execute("""SELECT * FROM matches""").fetchall())
-    results = [(1, 2, 1, 4, 7),
-               (2, 0, 1, 5, 1),
-               (1, 1, 1, 2, 6)]
-    enter_results(results)
-    print(cur.execute("""SELECT * FROM matches""").fetchall())
+    # print(cur.execute("""SELECT * FROM matches""").fetchall())
+    # results = [(1, 2, 1, 4, 7),
+    #            (2, 0, 1, 5, 1),
+    #            (1, 1, 1, 2, 6)]
+    # enter_results(results)
+    # print(cur.execute("""SELECT * FROM matches""").fetchall())
 
