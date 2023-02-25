@@ -1,16 +1,16 @@
-<mxfile host="app.diagrams.net" modified="2023-02-25T18:26:47.949Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 OPR/94.0.0.0" etag="LmlmUWCXYJ86sjXEpyBr" version="20.8.23" type="github">
+<mxfile host="app.diagrams.net" modified="2023-02-25T18:34:29.260Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 OPR/94.0.0.0" etag="yPeAYe0W9A0Nz5kNt7g2" version="20.8.23" type="github">
   <diagram name="Page-1" id="8Rtd69jn0g7FauWGPaa4">
-    <mxGraphModel dx="1393" dy="776" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1393" dy="826" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="fcfNNgxggrPZfIcGHl4g-1" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="10" y="10" width="370" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="fcfNNgxggrPZfIcGHl4g-2" value="&lt;h1&gt;Tournament data base&lt;/h1&gt;" style="text;html=1;strokeColor=#ae4132;fillColor=#fad9d5;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+        <mxCell id="fcfNNgxggrPZfIcGHl4g-2" value="&lt;h1&gt;Tournament data base&lt;/h1&gt;" style="text;html=1;strokeColor=#006EAF;fillColor=#1ba1e2;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="10" y="10" width="370" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="fcfNNgxggrPZfIcGHl4g-4" value="players" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#fad9d5;strokeColor=#ae4132;" vertex="1" parent="1">
+        <mxCell id="fcfNNgxggrPZfIcGHl4g-4" value="players" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="70" y="110" width="210" height="120" as="geometry" />
         </mxCell>
         <mxCell id="fcfNNgxggrPZfIcGHl4g-5" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;" vertex="1" parent="fcfNNgxggrPZfIcGHl4g-4">
@@ -52,7 +52,7 @@
             <mxRectangle width="180" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="fcfNNgxggrPZfIcGHl4g-17" value="matches" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#fad9d5;strokeColor=#ae4132;swimlaneLine=1;" vertex="1" parent="1">
+        <mxCell id="fcfNNgxggrPZfIcGHl4g-17" value="matches" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#1ba1e2;strokeColor=#006EAF;swimlaneLine=1;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="570" y="340" width="210" height="130" as="geometry" />
         </mxCell>
         <mxCell id="fcfNNgxggrPZfIcGHl4g-18" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;" vertex="1" parent="fcfNNgxggrPZfIcGHl4g-17">
@@ -99,7 +99,7 @@
             <mxRectangle width="180" height="40" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="fcfNNgxggrPZfIcGHl4g-32" value="player_matches" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#fad9d5;strokeColor=#ae4132;swimlaneLine=1;" vertex="1" parent="1">
+        <mxCell id="fcfNNgxggrPZfIcGHl4g-32" value="player_matches" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#1ba1e2;strokeColor=#006EAF;swimlaneLine=1;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="320" y="110" width="210" height="170" as="geometry" />
         </mxCell>
         <mxCell id="fcfNNgxggrPZfIcGHl4g-33" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;" vertex="1" parent="fcfNNgxggrPZfIcGHl4g-32">
@@ -160,7 +160,7 @@
             <mxPoint x="200" y="99" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="fcfNNgxggrPZfIcGHl4g-52" value="tourneys" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#fad9d5;strokeColor=#ae4132;swimlaneLine=1;" vertex="1" parent="1">
+        <mxCell id="fcfNNgxggrPZfIcGHl4g-52" value="tourneys" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#1ba1e2;strokeColor=#006EAF;swimlaneLine=1;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="90" y="320" width="210" height="170" as="geometry" />
         </mxCell>
         <mxCell id="fcfNNgxggrPZfIcGHl4g-53" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;" vertex="1" parent="fcfNNgxggrPZfIcGHl4g-52">
