@@ -8,7 +8,7 @@
 # visualisation for tournaments, pairing, points
 # Class system for tourneys to make it customisable later
 
-import random, sqlite3, datetime
+import random, sqlite3, datetime, itertools
 
 
 con = sqlite3.connect("tourney_db.db")
@@ -115,14 +115,12 @@ def read_players() -> list:
     return call.fetchall()
 
 
-def rand_pairing(players: list, prev_bye: int = None) -> (list, int):
+def rand_pairing(players: list) -> (list, int):
     """
     Randomize players and pair them
     """
 
     random.shuffle(players)
-    while players[-1] == prev_bye:
-        random.shuffle(players)
 
     bye_player_name = players.pop() if len(players) % 2 else None
     matches = []
@@ -244,50 +242,59 @@ def get_previous_pairing(t_id: int, t_round: int) -> (list, tuple):
     match_list = cur.execute(player_matches, infos).fetchall()
     match_pairings = {match: tuple(player for match_id, player in match_list if match_id == match) for match, _ in match_list}
     prev_pairings = list(match_pairings.values())
-    print(prev_pairings)
+    print("previous pairings to id prev bye : ", prev_pairings)
     prev_bye_player = next(filter(lambda x: len(x) == 1, prev_pairings))[0]
+    print("Prev_bye_player in get previous pairing : ", prev_bye_player)
 
     return prev_pairings, prev_bye_player
 
 
+def get_new_round_pairing(prev_pairs: list, p_ids: list) -> list:
+    """Takes previous pairings and list of ids to return new unique match ups"""
+    prev_pairs_list = [set(x) for x in prev_pairs]
+    all_pairs = itertools.combinations(p_ids, 2)
+    all_pairs_list = [set(x) for x in all_pairs]
+    possible_pairings = []
+
+    for x in range(len(all_pairs_list)):
+        curr = all_pairs_list[x]
+        if curr not in prev_pairs_list:
+            possible_pairings.append(list(curr))
+
+    counter = []
+    new_pairing = []
+
+    for x in possible_pairings:
+        if x[0] not in counter and x[1] not in counter:
+            new_pairing.append(x)
+            counter.append(x[0])
+            counter.append(x[1])
+
+    return new_pairing
+
+
 def next_round_pairing(t_id: int, t_round: int) -> (list, str):
     """
-    Create a pairing for next round compared to previous round. Will call fror previous matches to avoid redundancy
+    Create a pairing for next round compared to previous round. Will call for previous matches to avoid redundancy
     """
     # TODO : make this the function for next round
     # get previous match ups
     # careful, we are only checking previous bye player, not all of them from every previous rounds
 
     prev_pairing, prev_bye = get_previous_pairing(t_id, t_round)
-    rand_pairing(prev_pairing, prev_bye)
-########################### STOPPED HERE LAST TIME ##############################
-    rand_num = random.randint(0, len(prev_pairing)-1)
-    if len(prev_pairing) % 2:
-        while prev_pairing[rand_num] in prev_bye:
-            if rand_num < (len(prev_pairing)-1):
-                rand_num += 1
-            else:
-                rand_num -= 1
-        bye_player_name = prev_pairing.pop(rand_num)
-        print("bye : ",bye_player_name)
-    else:
-        bye_player_name = None
+    # get back simple player id list
+    players_list = [p for tup in prev_pairing for p in tup]
 
-    # Then let's make the pairings and avoid having the same matches as before
-    # we don't handle the case when a pairing already exists but it's the last pairing !
-    # previous matches not identified for reversed lists : [A, B] != [B,A]
-    # Error : list index out of range
-    pair_2 = 0
-    pairings = list()
-    print(prev_pairing)
-    while prev_pairing:
-        while [prev_pairing[0], prev_pairing[pair_2]] in prev_pairing:
-            pair_2 += 1
-        pairings.append([prev_pairing.pop(0), prev_pairing.pop(pair_2)])
-        print(pairings)
-        pair_2 = 0
-        print(prev_pairing)
-    return pairings, bye_player_name
+    while players_list[-1] == prev_bye:
+        random.shuffle(players_list)
+
+    new_bye_player = players_list.pop()
+    new_pairing = get_new_round_pairing(prev_pairing, players_list)
+
+    # create new pairing that checks for previous pairs not to exist
+    # ToDo add the matches and player matches in the database - check if existing funcitons are ok / adaptable
+
+    return new_pairing, new_bye_player
 
 
 def score_sort(scores: list) -> list:
@@ -350,21 +357,16 @@ if __name__ == "__main__":
     # enroll_players(info_list)
     # play_list = read_players()
     # id_list = [p[0] for p in play_list]
-    # print("Players id table = ", id_list)
+    # # print("Players id table = ", id_list)
     # tourney_id = create_tourney("classic", "monday_tourney")
     # print("tourney id = ", tourney_id)
-    # print(pairing_process(tourney_id, 1, id_list))
+    # print("pairing process : ", pairing_process(tourney_id, 1, id_list))
+    #
+    # print("get tourney list : ", get_tourneys_list())
 
-    # print( get_tourneys_list())
-
-    # print(table_pairing(pairing_id[0]))
     # kivy table needs a tuple with all the row data : player1, player2...
-    # print(pairing_process(1))
-    # roco = "" \
-    #        "SELECT * " \
-    #        "FROM matches"
-    # print(cur.execute(roco).fetchall())
-    print(get_previous_pairing(1, 1))
+
+    print("next round func : ", next_round_pairing(1, 1))
     # results = [(1, 2, 1, 4, 7),
     #            (2, 0, 1, 5, 1),
     #            (1, 1, 1, 2, 6)]
