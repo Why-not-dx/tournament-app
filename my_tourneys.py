@@ -152,7 +152,7 @@ def create_match(pairing: list, t_id: int, t_round: int, bye_player: int) -> lis
 
 def player_matches(m_ids: list, pairing: list, bye_player: int) -> None:
     """
-    feed the players id for the matches created previously
+    Take the matches from matches table and feeds the player_matches table with the matches and IDs
     """
 
     # We need to adapt the matches list so that the bye player doesn't have an opponent.
@@ -204,13 +204,20 @@ def players_list(t_id: int) -> list:
     return cur.execute(command, t_id).fetchall()
 
 
-def pairing_process(t_id: int, t_round: int, players: list) -> (list, list):
+def pairing_process(t_id: int, t_round: int, players: list = None, bye_next_round:int = None, pairing_next_round: list = None) -> (list, list):
     """
     Main process calling all pairing function in order
     """
 
-    pairing, bye_player = rand_pairing(players)
+    print("entries :", pairing_next_round, bye_next_round)
+
+    if players:
+        pairing, bye_player = rand_pairing(players)
+    else:
+        pairing, bye_player = pairing_next_round, bye_next_round
+
     round_matches = create_match(pairing, t_id, t_round, bye_player)
+    print("test entries : ", pairing, bye_player)
     player_matches(round_matches, pairing, bye_player)
 
     # get bye player text name from table and use function to convert pairing list from ids to actual string.
@@ -336,7 +343,7 @@ def enter_results(results: list) -> str:
 
 
 if __name__ == "__main__":
-    # db_create()
+    db_create()
     # info_list = [
     #     ('Anthony', 'Guts'),
     #     ('Joey', 'Ryoma'),
@@ -345,28 +352,30 @@ if __name__ == "__main__":
     #     ("Ranni", "Zewich"),
     #     ("Neils", "Bohred")
     # ]
-    # info_list = [
-    #     ('Anthony', 'Guts'),
-    #     ('Joey', 'Ryoma'),
-    #     ('Mai', 'Valentine'),
-    #     ("Ryo", "Saeba"),
-    #     ("Ranni", "Zewich"),
-    #     ("Neils", "Bohred"),
-    #     ("Jensen", "Kimmit")
-    # ]
-    # enroll_players(info_list)
-    # play_list = read_players()
-    # id_list = [p[0] for p in play_list]
-    # # print("Players id table = ", id_list)
-    # tourney_id = create_tourney("classic", "monday_tourney")
-    # print("tourney id = ", tourney_id)
-    # print("pairing process : ", pairing_process(tourney_id, 1, id_list))
-    #
-    # print("get tourney list : ", get_tourneys_list())
+    info_list = [
+        ('Anthony', 'Guts'),
+        ('Joey', 'Ryoma'),
+        ('Mai', 'Valentine'),
+        ("Ryo", "Saeba"),
+        ("Ranni", "Zewich"),
+        ("Neils", "Bohred"),
+        ("Jensen", "Kimmit")
+    ]
+    enroll_players(info_list)
+    play_list = read_players()
+    id_list = [p[0] for p in play_list]
+    # print("Players id table = ", id_list)
+    tourney_id = create_tourney("classic", "monday_tourney")
+    print("tourney id = ", tourney_id)
+    print("pairing process : ", pairing_process(tourney_id, 1, id_list))
+
+    print("get tourney list : ", get_tourneys_list())
 
     # kivy table needs a tuple with all the row data : player1, player2...
+    next_round = next_round_pairing(1, 1)
 
-    print("next round func : ", next_round_pairing(1, 1))
+    print("next round func : ", next_round[0], next_round[1])
+    print("pairing #2", pairing_process(1, 2, bye_next_round=next_round[1], pairing_next_round=next_round[0]))
     # results = [(1, 2, 1, 4, 7),
     #            (2, 0, 1, 5, 1),
     #            (1, 1, 1, 2, 6)]
