@@ -1,0 +1,35 @@
+# kivy version   2.1.0
+
+MainPage:
+
+<Mainpage>:
+    name: 'MainPage'
+    MDBoxLayout:
+        adaptative_height: True
+        orientation: 'vertical'
+
+        MDRectangleFlatButton:
+            text: "Test for a button"
+            pos_hint: {'center_x':0.5, 'center_y':0.5}
+            on_release: app.theme_cls.theme_style = ("Dark" if self.theme_cls.theme_style == "Light" else "Light")
+        MDLabel:
+            text: "Label test"
+
+
+
+<PlayersList>:
+
+
+<TourneyList>:
+
+
+<NewTourney>:
+
+
+<TournamentScreen>:
+
+
+<RoundScreen>:
+
+
+<StandingsScreen>:
