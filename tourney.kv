@@ -1,35 +1,150 @@
-# kivy version   2.1.0
 
-MainPage:
+#: import np numpy
+#: set MainPurple (122/255, 48/255, 108/255, 1)
+#: set NightBlue (12/255, 27/255, 51/255, .3)
+#: set LightKaki (178/255, 170/255, 142/255, .3)
 
-<Mainpage>:
+
+ScreenManager:
+    MainPage:
+    PlayersList:
+    TourneyList:
+    NewTourney:
+    TournamentScreen:
+    RoundScreen:
+    StandingsScreen:
+
+
+<TitleLabel@MDLabel>:
+    pos_hint: {"center_x": .5, 'y': .5}
+    size_hint: (1, 1)
+    font_style: "H6"
+    halign: 'center'
+    theme_text_color: "Custom"
+    text_color: MainPurple
+
+<MyButton@MDRaisedButton>:
+    theme_text_color: "Custom"
+    padding: dp(20)
+    pos_hint: {"center_x": .5, "y": .1}
+    md_bg_color: NightBlue
+
+
+<MainPage>:
     name: 'MainPage'
     MDBoxLayout:
-        adaptative_height: True
-        orientation: 'vertical'
+        orientation: "vertical"
+        padding: dp(30)
 
-        MDRectangleFlatButton:
-            text: "Test for a button"
-            pos_hint: {'center_x':0.5, 'center_y':0.5}
-            on_release: app.theme_cls.theme_style = ("Dark" if self.theme_cls.theme_style == "Light" else "Light")
-        MDLabel:
-            text: "Label test"
+
+        MDBoxLayout:
+            orientation: "vertical"
+            size: root.width, root.height
+            #size_hint_y: .5
+            padding: dp(25)
+
+            Image:
+                source: "mainpage.png"
+                size_hint: (3, 3)
+                pos_hint: {"center_x": .5}
+                allow_stretch: True
+                keep_ratio: True
+
+            TitleLabel:
+                text: "Your tournament handler"
+
+
+        MDBoxLayout:
+            adaptative_size: True
+            orientation: "vertical"
+            size_hint_y:  .4
+            spacing: dp(35)
+            padding: dp(25)
+
+            MyButton:
+                size_hint: (.8, None)
+                text: "CREATE A TOURNAMENT"
+                on_release: root.manager.current = "NewTourney"
+
+            MyButton:
+                size_hint:(.8, None)
+                text: "YOUR TOURNAMENTS"
+                on_release: root.manager.current = "TourneyList"
+
+            MyButton:
+                size_hint:(.8, None)
+                text: "YOUR PLAYERS"
+                on_press: root.manager.current = "PlayersList"
 
 
 
 <PlayersList>:
+    name: "PlayersList"
+    BoxLayout:
+        orientation: "vertical"
+        TitleLabel:
+            text: "test"
+            font: "M6"
+        MyButton:
+            size_hint:(.8, None)
+            text: "Back"
+            on_press: root.manager.current = "MainPage"
 
 
 <TourneyList>:
+    name: "TourneyList"
+    BoxLayout:
+        MyButton:
+            size_hint:(.8, None)
+            text: "Back"
+            on_press: root.manager.current = "MainPage"
+
 
 
 <NewTourney>:
-
+    name: "NewTourney"
+    BoxLayout:
+        orientation: "vertical"
+        TitleLabel:
+            text: "test"
+            font: "M6"
+        MyButton:
+            size_hint:(.8, None)
+            text: "Back"
+            on_press: root.manager.current = "MainPage"
 
 <TournamentScreen>:
-
+    name: "TournamentScreen"
+    BoxLayout:
+        orientation: "vertical"
+        TitleLabel:
+            text: "test"
+            font: "M6"
+        MyButton:
+            size_hint:(.8, None)
+            text: "Back"
+            on_press: root.manager.current = "MainPage"
 
 <RoundScreen>:
-
+    name: "RoundScreen"
+    BoxLayout:
+        orientation: "vertical"
+        TitleLabel:
+            text: "test"
+            font: "M6"
+        MyButton:
+            size_hint:(.8, None)
+            text: "Back"
+            on_press: root.manager.current = "MainPage"
 
 <StandingsScreen>:
+    name: "StandingsScreen"
+    BoxLayout:
+        orientation: "vertical"
+        TitleLabel:
+            text: "test"
+            font: "M6"
+        MyButton:
+            size_hint:(.8, None)
+            text: "Back"
+            on_press: root.manager.current = "MainPage"
