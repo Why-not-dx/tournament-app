@@ -1,14 +1,45 @@
 # Link all the tournament functions into the GUI
 from kivy.lang import Builder
-
+from kivy.uix.anchorlayout import AnchorLayout
 
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.pickers import MDDatePicker
 
 
 class MainPage(Screen):
     ...
+
+class PlayersTable(Screen):
+
+    def add_datatable(self):
+        """
+        Creates a DataTable on load of the page after a search
+        in the playersList screen
+        """
+        layout = AnchorLayout()
+        self.data_tables = MDDataTable(
+            size_hint=(1, .4),
+            user_pagination=True,
+            column_data=[
+                ("ID", dp(30)),
+                ("Name", dp(30)),
+                ("Surname", dp(30))
+            ],
+            row_data=args,
+            rows_num=10,
+            sorted_on="ID", sorted_order="ASC", elevation=2
+        )
+        self.root.ids.data_scr.ids.data_layout.add_widget(self.data_tables)
+        self.add_widget(layout)
+
+    def on_enter(self, *args):
+        """
+        On load of page, we will call the table of players
+        from the SQL query in the players pages
+        """
+        self.add_datatable(args)
 
 
 class PlayersList(Screen):
@@ -67,6 +98,7 @@ class TourneyApp(MDApp):
         date_dialog = MDDatePicker(min_year=2022, max_year=2030)
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
+
 
 
 if __name__ == "__main__":
