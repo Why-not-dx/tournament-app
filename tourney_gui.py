@@ -1,45 +1,17 @@
 # Link all the tournament functions into the GUI
 from kivy.lang import Builder
 from kivy.uix.anchorlayout import AnchorLayout
-
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivymd.uix.datatables import MDDataTable
+from kivymd.uix.list import OneLineListItem
 from kivymd.uix.pickers import MDDatePicker
+
+
+
 
 
 class MainPage(Screen):
     ...
-
-class PlayersTable(Screen):
-
-    def add_datatable(self):
-        """
-        Creates a DataTable on load of the page after a search
-        in the playersList screen
-        """
-        layout = AnchorLayout()
-        self.data_tables = MDDataTable(
-            size_hint=(1, .4),
-            user_pagination=True,
-            column_data=[
-                ("ID", dp(30)),
-                ("Name", dp(30)),
-                ("Surname", dp(30))
-            ],
-            row_data=args,
-            rows_num=10,
-            sorted_on="ID", sorted_order="ASC", elevation=2
-        )
-        self.root.ids.data_scr.ids.data_layout.add_widget(self.data_tables)
-        self.add_widget(layout)
-
-    def on_enter(self, *args):
-        """
-        On load of page, we will call the table of players
-        from the SQL query in the players pages
-        """
-        self.add_datatable(args)
 
 
 class PlayersList(Screen):
@@ -70,10 +42,29 @@ class ScreenManager(ScreenManager):
 
 
 
+
 class TourneyApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
+        self.theme_cls.accent_palette = "DeepPurple"
+        self.theme_cls.accent_hue = "300"
+
+        Builder.load_file("new_tourney.kv")
+        Builder.load_file("search_tourney.kv")
+        Builder.load_file("players.kv")
+        Builder.load_file("tourney.kv")
+
+    def player_search(self):
+        #TODO: make the function feed the players list without the error
+        for x in range(10):
+            self.root.ids.players_list.add_widget(
+                OneLineListItem(text=f"Single-line item {x}")
+            )
+
+    def light_dark_change(self):
+        """change the light or dark mode"""
+        self.theme_cls.theme_style = "Light" if self.theme_cls.theme_style == "Dark" else "Dark"
 
     def on_save(self, instance, value, date_range):
         """

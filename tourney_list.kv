@@ -1,0 +1,10 @@
+<TourneyList>:
+    name: "TourneyList"
+    MDBoxLayout:
+        MyButton:
+            size_hint:(1, None)
+            text: "Back"
+            on_press:
+                root.manager.current = "MainPage"
+                root.manager.transition.direction = "left"
+

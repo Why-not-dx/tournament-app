@@ -1,0 +1,94 @@
+<NewTourney>:
+    name: "NewTourney"
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: dp(25)
+
+        MDBoxLayout:
+            padding: dp(25)
+            spacing: dp(25)
+            size_hint_y: .4
+
+            TitleLabel:
+                pos_hint: {"center_y": .5}
+                text: "CREATE A NEW TOURNAMENT"
+                font_style: "H3"
+
+        MDBoxLayout:
+            adaptive_height: True
+            orientation: "vertical"
+            spacing: 10
+            size_hint_y: .6
+
+            TitleLabel:
+                adaptive_height: True
+                text: "NAME"
+                font: "M5"
+                size_hint: (.5, None)
+                pos_hint: {"left":0}
+                theme_text_color: "Custom"
+                text_color: MainPurple
+
+
+            MDTextField:
+                adaptive_height: True
+                id: new_tourney_name
+                size_hint_x: .7
+                pos_hint: {"center_x": .5}
+                mode: "fill"
+                icon_right: "android"
+                halign: "center"
+
+
+            TitleLabel:
+                adaptive_height: True
+                size_hint: (.5, None)
+                pos_hint: {"left":0}
+                text: "FORMAT"
+                font: "M5"
+
+            MDTextField:
+                adaptive_height: True
+                id: new_tourney_format
+                size_hint_x: .7
+                pos_hint: {"center_x": .5}
+
+                mode: "fill"
+
+            TitleLabel:
+                adaptive_height: True
+                size_hint_x: .5
+                pos_hint: {"left":0}
+                text: "DATE"
+                font: "M5"
+
+            MDRaisedButton:
+                adaptive_height: True
+                size_hint_x: .7
+                pos_hint: {"center_x": .5}
+                text: "Pick a date"
+                on_release: app.show_date_picker()
+
+
+            MDBoxLayout:
+                adaptive_height: True
+                orientation: "vertical"
+                size_hint_y: .2
+                spacing: dp(25)
+
+                MyButton:
+                    size_hint_x: .7
+                    spacing: dp(25)
+                    pos_hint: {"x":.15}
+                    text: "CREATE TOURNAMENT"
+                    on_press:
+                        print(new_tourney_name.text)
+
+                MyButton:
+                    size_hint_x: .3
+                    spacing: dp(25)
+                    pos_hint: {"right":.85}
+                    text: "Back"
+                    on_press:
+                        root.manager.current = "MainPage"
+                        root.manager.transition.direction = "left"

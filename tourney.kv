@@ -1,15 +1,17 @@
 
-#: import np numpy
-#: set MainPurple (122/255, 48/255, 108/255, 1)
-#: set NightBlue (12/255, 27/255, 51/255, .3)
-#: set LightKaki (178/255, 170/255, 142/255, .3)
+#:include players.kv
+#:include search_tourney.kv
+#:include new_tourney.kv
+#:set MainPurple (122/255, 48/255, 108/255, 1)
+#:set NightBlue (12/255, 27/255, 51/255, .3)
+#:set LightKaki (178/255, 170/255, 142/255, .3)
 
 
 ScreenManager:
-    MainPage:
     PlayersList:
-    TourneyList:
+    MainPage:
     NewTourney:
+    TourneyList:
     TournamentScreen:
     RoundScreen:
     StandingsScreen:
@@ -17,30 +19,37 @@ ScreenManager:
 
 <TitleLabel@MDLabel>:
     pos_hint: {"center_x": .5, 'y': .5}
-    size_hint: (1, 1)
     font_style: "H6"
     halign: 'center'
     theme_text_color: "Custom"
     text_color: MainPurple
 
+
 <MyButton@MDRaisedButton>:
     theme_text_color: "Custom"
     padding: dp(20)
     pos_hint: {"center_x": .5, "y": .1}
-    md_bg_color: NightBlue
+    md_bg_color: app.theme_cls.accent_light
+
+<MyTopAppBar@MDTopAppBar>:
+    md_bg_color: app.theme_cls.primary_color
+    right_action_items: [["moon-waxing-crescent", lambda x: app.light_dark_change()]]
+    elevation: 1
 
 
 <MainPage>:
     name: 'MainPage'
+
     MDBoxLayout:
         orientation: "vertical"
-        padding: dp(30)
 
+        MyTopAppBar:
+            title: "My tourneys - app"
+            size_hint_y: .1
 
         MDBoxLayout:
             orientation: "vertical"
-            size: root.width, root.height
-            #size_hint_y: .5
+            size_hint_y: .9
             padding: dp(25)
 
             Image:
@@ -54,8 +63,8 @@ ScreenManager:
                 text: "Your tournament handler"
 
 
-        MDBoxLayout:
-            adaptative_size: True
+        BoxLayout:
+            adaptive_size: True
             orientation: "vertical"
             size_hint_y:  .4
             spacing: dp(35)
@@ -64,87 +73,21 @@ ScreenManager:
             MyButton:
                 size_hint: (.8, None)
                 text: "CREATE A TOURNAMENT"
-                on_release: root.manager.current = "NewTourney"
+                on_release:
+                    root.manager.current = "NewTourney"
+                    root.manager.transition.direction = "right"
+
 
             MyButton:
                 size_hint:(.8, None)
                 text: "YOUR TOURNAMENTS"
-                on_release: root.manager.current = "TourneyList"
+                on_release:
+                    root.manager.current = "TourneyList"
+                    root.manager.transition.direction = "right"
 
             MyButton:
                 size_hint:(.8, None)
                 text: "YOUR PLAYERS"
-                on_press: root.manager.current = "PlayersList"
-
-
-
-<PlayersList>:
-    name: "PlayersList"
-    BoxLayout:
-        orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
-
-
-<TourneyList>:
-    name: "TourneyList"
-    BoxLayout:
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
-
-
-
-<NewTourney>:
-    name: "NewTourney"
-    BoxLayout:
-        orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
-
-<TournamentScreen>:
-    name: "TournamentScreen"
-    BoxLayout:
-        orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
-
-<RoundScreen>:
-    name: "RoundScreen"
-    BoxLayout:
-        orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
-
-<StandingsScreen>:
-    name: "StandingsScreen"
-    BoxLayout:
-        orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
+                on_press:
+                    root.manager.current = "PlayersList"
+                    root.manager.transition.direction = "left"
