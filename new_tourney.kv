@@ -1,3 +1,5 @@
+#add pop up for buttons pressed
+
 <NewTourney>:
     name: "NewTourney"
     MDBoxLayout:
@@ -23,9 +25,11 @@
             TitleLabel:
                 adaptive_height: True
                 text: "NAME"
-                font: "M5"
-                size_hint: (.5, None)
-                pos_hint: {"left":0}
+                valign: "top"
+                halign: "left"
+                font_style: "H6"
+                size_hint: (.7, None)
+                pos_hint: {"center_x":.5}
                 theme_text_color: "Custom"
                 text_color: MainPurple
 
@@ -35,15 +39,17 @@
                 id: new_tourney_name
                 size_hint_x: .7
                 pos_hint: {"center_x": .5}
-                mode: "fill"
                 icon_right: "android"
                 halign: "center"
+                line_color_normal: app.theme_cls.primary_light
 
 
             TitleLabel:
                 adaptive_height: True
-                size_hint: (.5, None)
-                pos_hint: {"left":0}
+                size_hint: (.7, None)
+                pos_hint: {"center_x":.5}
+                valign: "top"
+                halign: "left"
                 text: "FORMAT"
                 font: "M5"
 
@@ -52,22 +58,43 @@
                 id: new_tourney_format
                 size_hint_x: .7
                 pos_hint: {"center_x": .5}
-
-                mode: "fill"
+                line_color_normal: app.theme_cls.primary_light
 
             TitleLabel:
                 adaptive_height: True
-                size_hint_x: .5
-                pos_hint: {"left":0}
+                size_hint: (.7, None)
+                pos_hint: {"center_x":.5}
+                valign: "top"
+                halign: "left"
                 text: "DATE"
                 font: "M5"
 
-            MDRaisedButton:
-                adaptive_height: True
-                size_hint_x: .7
-                pos_hint: {"center_x": .5}
-                text: "Pick a date"
-                on_release: app.show_date_picker()
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint: (None, None)
+                size: (300, 50)
+                spacing: 10
+                pos_hint: {"center_y": .5}
+
+
+                MDLabel:
+                    id: search_tourney_date
+                    size_hint: (None, None)
+                    size: (270, 50)
+                    pos_hint: { "center_x": .5}
+                    halign: "center"
+                    valign: "center"
+                    font_style: "H6"
+                    text: ""
+
+                MDRaisedButton:
+                    id: search_tourney_date_button
+                    size_hint: (None, None)
+                    size: (200, 50)
+                    pos_hint: {"center_y": .5, "x": .5}
+                    text: "Pick a date"
+                    on_release: root.show_date_picker()
+
 
 
             MDBoxLayout:

@@ -1,30 +1,70 @@
-<TourneyScreen>:
-    name: "TourneyScreen"
+<TournamentScreen>:
+    name: "TournamentScreen"
     BoxLayout:
         orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press:
-                root.manager.current = "MainPage"
-                root.manager.transition.direction = "left"
-        MDGridLayout:
-            size_hint_y: .3
-            cols: 2
-            MDLabel:
-                text:"hello"
-            MDTextField:
-                text: "world"
-            MDLabel:
-                text: "Hello"
-            MDRaisedButton:
-                text: "world"
+        MyTopAppBar:
+            title: "TOURNAMENT INFOS"
+
+        BoxLayout:
+            padding: 20
+            spacing: 25
+            orientation: "vertical"
+            TitleLabel:
+                adaptive_height: True
+                text: "Tournament's name"
+                font: "M6"
+                halign: "left"
+                valign: "top"
+
+            MDBoxLayout:
+                adaptive_height: True
+                orientation: "horizontal"
+                padding: 20
+                spacing: 30
+
+                MyButton:
+                    size_hint_x: .3
+                    pos_hint: {"left": 0}
+                    text:"Standings"
+                MyButton:
+                    size_hint_x: .3
+                    pos_hint: {"center_x": .5}
+                    text: "Players"
+                MyButton:
+                    size_hint_x: .3
+                    pos_hint: {"right": 1}
+                    text: "Next round"
+                    on_release: root.tourney_search()
+
+            MDScrollView:
+                adaptive_height: True
+                MDList:
+                    id: rounds_list
+                    OneLineListItem:
+                        text:"Round 1 "
+                        theme_text_color: "Custom"
+                        text_color: MainPurple
+                    OneLineListItem:
+                        text:"Round 2 "
+                        theme_text_color: "Custom"
+                        text_color: MainPurple
+                        on_release:
+                            root.manager.current = "MainPage"
+                            root.manager.transition.direction = "left"
+
+
+            MyButton:
+                adaptive_height: True
+                text: "Back"
+                on_press:
+                    root.manager.current = "MainPage"
+                    root.manager.transition.direction = "left"
+
+
 
 <RoundScreen>:
     name: "RoundScreen"
+    #Simply make a MDDataTable ? I mean, it's a pop up, removes a useless screen...
     BoxLayout:
         orientation: "vertical"
         TitleLabel:
