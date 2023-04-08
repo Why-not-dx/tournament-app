@@ -1,11 +1,14 @@
 # Link all the tournament functions into the GUI
 from kivy.lang import Builder
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivymd.uix.datatables import MDDataTable
+from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.pickers import MDDatePicker
-
+from kivy.metrics import dp
 
 
 
@@ -109,13 +112,33 @@ class TournamentScreen(Screen):
                 OneLineListItem(text=f"Single-line item {x}")
             )
 
+    def add_table(self):
 
-class RoundScreen(Screen):
-    ...
+        self.data_tables = MDDataTable(
+            size_hint=(1, 1),
+            pos_hint={"center_y": .5, "center_x": .5},
+            use_pagination=True,
+            check=True,
+            # name column, width column, sorting function column(optional), custom tooltip
+            column_data=[
+                ("No.", dp(25), None, "Custom tooltip"),
+                ("Status", dp(25)),
+                ("Signal Name", dp(25)),
+                ("Severity", dp(25)),
+                ("Stage", dp(25)),
+                ("Schedule", dp(25), lambda *args: print("Sorted using Schedule")),
+                ("Team Lead", dp(25)),
+            ],
+        )
+        self.popuptable = Popup(
+            title="Standings - round X",
+            content=self.data_tables,
+            size_hint=(.8, .8)
+        )
+        self.popuptable.open()
 
 
-class StandingsScreen(Screen):
-    ...
+
 
 class ScreenManager(ScreenManager):
     ...
@@ -150,9 +173,3 @@ class TourneyApp(MDApp):
 
 if __name__ == "__main__":
     TourneyApp().run()
-
-
-
-
-
-

@@ -62,28 +62,3 @@
 
 
 
-<RoundScreen>:
-    name: "RoundScreen"
-    #Simply make a MDDataTable ? I mean, it's a pop up, removes a useless screen...
-    BoxLayout:
-        orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
-
-<StandingsScreen>:
-    name: "StandingsScreen"
-    BoxLayout:
-        orientation: "vertical"
-        TitleLabel:
-            text: "test"
-            font: "M6"
-
-        MyButton:
-            size_hint:(.8, None)
-            text: "Back"
-            on_press: root.manager.current = "MainPage"
