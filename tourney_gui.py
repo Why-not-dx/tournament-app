@@ -82,7 +82,7 @@ class NewTourney(Screen):
         """
 
         curr_screen = self.parent.get_screen('NewTourney')
-        curr_screen.ids.test.text = str(value)
+        curr_screen.ids.search_tourney_date.text = str(value)
 
     def on_cancel(self, instance, value):
         """
@@ -98,7 +98,16 @@ class NewTourney(Screen):
 
 
 class TournamentScreen(Screen):
-    ...
+    def __init__(self, **kwargs):
+        super(TournamentScreen, self).__init__(**kwargs)
+
+    def tourney_search(self):
+        #TODO: make the function feed the players list without the error
+        curr_screen = self.parent.get_screen('TournamentScreen')
+        for x in range(10):
+            curr_screen.ids.rounds_list.add_widget(
+                OneLineListItem(text=f"Single-line item {x}")
+            )
 
 
 class RoundScreen(Screen):
@@ -119,10 +128,9 @@ class TourneyApp(MDApp):
         self.theme_cls.accent_palette = "DeepPurple"
         self.theme_cls.accent_hue = "300"
 
-        Builder.load_file("new_tourney.kv")
-        Builder.load_file("search_tourney.kv")
-        Builder.load_file("players.kv")
-        Builder.load_file("tourney.kv")
+        # Builder.load_file("new_tourney.kv")
+        # Builder.load_file("search_tourney.kv")
+        # Builder.load_file("players.kv")
 
     def player_search(self):
         #Because of the screen system, calling function returns an empty list
