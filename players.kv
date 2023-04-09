@@ -13,13 +13,11 @@
             orientation: "vertical"
 
             MDScrollView:
+                id: player_scroll
                 size_hint: (1, .5)
                 MDList:
                     id: players_list
-                    OneLineListItem:
-                        text:"Josué ROBERT - ID: 23 "
-                        theme_text_color: "Custom"
-                        text_color: MainPurple
+
 
             MDGridLayout:
                 cols: 2
@@ -97,8 +95,8 @@
                 size_hint: (.5, .075)
                 text: "SEARCH"
                 on_press:
-                    #print(search_id.text, search_name.text , search_surname.text)
-                    root.feed_list()
+                    if any((search_id.text, search_name.text , search_surname.text)):\
+                    root.feed_list(search_id.text, search_name.text , search_surname.text)
 
             MyButton:
                 size_hint: (.3, .075)

@@ -1,16 +1,14 @@
 # Link all the tournament functions into the GUI
-from kivy.lang import Builder
-from kivy.uix.anchorlayout import AnchorLayout
+import sqlite3
+import my_tourneys as dab
+from sqlite3 import OperationalError
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.datatables import MDDataTable
-from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.pickers import MDDatePicker
 from kivy.metrics import dp
-
-
 
 
 class MainPage(Screen):
@@ -21,14 +19,53 @@ class PlayersList(Screen):
     def __init__(self, **kwargs):
         super(PlayersList, self).__init__(**kwargs)
 
+    def on_pre_enter(self, *args):
+        """when loading the page, adds on the list of all players in the app"""
+        super().on_pre_enter(*args)
+        self.feed_list()
 
-    def feed_list(self):
-        # ToDO: replace code with sql query of all players
+
+    def feed_list(self, p_id=None, p_name=None, p_surname=None):
+        """
+        Checks nature of the call, if empty, returns all players in list
+        If not empty, will either perform name search or tournament participation search
+        Clears the list after every call
+        """
         curr_screen = self.parent.get_screen('PlayersList')
-        for x in range(10):
-            curr_screen.ids.players_list.add_widget(
-                OneLineListItem(text=f"Single-line item {x}")
+        if not any((p_id, p_name, p_surname)):
+            players_list = dab.read_players()
+            for player in players_list:
+                curr_screen.ids.players_list.add_widget(
+                    OneLineListItem(
+                        text=f"{player[0]} | {player[1]}  |  {player[2]}",
+                        bg_color=(122/255, 48/255, 108/255, .1)
+                    )
+                )
+
+        elif p_id:
+            curr_screen.ids.players_list.clear_widgets()
+            players_list = dab.get_players_from_id(p_id)
+
+            for player in players_list:
+                curr_screen.ids.players_list.add_widget(
+                    OneLineListItem(
+                        text=f"{player[0]} | {player[1]}  |  {player[2]}",
+                        bg_color=(122/255, 48/255, 108/255, .1)
+                    )
+                )
+
+        elif p_name or p_surname:
+            curr_screen.ids.players_list.clear_widgets()
+            players_list = dab.get_players_id(
+                [p_name, p_surname]
             )
+            for player in players_list:
+                curr_screen.ids.players_list.add_widget(
+                    OneLineListItem(
+                        text=f"{player[0]} | {player[1]}  |  {player[2]}",
+                        bg_color=(122/255, 48/255, 108/255, .1)
+                    )
+                )
 
 
 
@@ -150,10 +187,10 @@ class TourneyApp(MDApp):
         self.theme_cls.primary_palette = "DeepPurple"
         self.theme_cls.accent_palette = "DeepPurple"
         self.theme_cls.accent_hue = "300"
-
-        # Builder.load_file("new_tourney.kv")
-        # Builder.load_file("search_tourney.kv")
-        # Builder.load_file("players.kv")
+        try:
+            dab.db_create()
+        except sqlite3.OperationalError:
+            pass
 
     def player_search(self):
         #Because of the screen system, calling function returns an empty list

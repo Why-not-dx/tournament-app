@@ -102,11 +102,35 @@ def get_tourneys_list():
 
 
 def get_players_id(infos: list) -> list:
-    # find players ID with their name in case we need it
-    names = cur.execute("""SELECT * FROM players WHERE (p_name =? AND p_surname= ?)""", infos)
+    """
+    takes name and/or surname and returns the players reference in the data base in format:
+    [(player_id, player_name, player_surname)]
+    """
+    print(infos)
+    if infos[0] and infos[1]:
+        names = cur.execute(
+            """SELECT * FROM players WHERE (p_name =? AND p_surname= ?)""",
+            infos)
+    elif infos[0] and not infos[1]:
+        names = cur.execute(
+            """SELECT * FROM players WHERE (p_name =?)""",
+            (infos[0],)
+        )
+    elif not infos[0] and infos[1]:
+        names = cur.execute(
+            """SELECT * FROM players WHERE (p_surname= ?)""",
+            (infos[1],)
+        )
 
     return names.fetchall()
 
+def get_players_from_id(infos: list) -> list:
+    """
+    takes an id and returns the players reference in the data base in format:
+    [(player_id, player_name, player_surname)]
+    """
+    players = cur.execute("""SELECT * FROM players WHERE (p_id = ?)""", infos)
+    return players.fetchall()
 
 def read_players() -> list:
     """ get all registered players informations """
