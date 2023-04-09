@@ -1,6 +1,7 @@
 # Link all the tournament functions into the GUI
 import sqlite3
 import my_tourneys as dab
+import pairing as pr
 from sqlite3 import OperationalError
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
@@ -87,6 +88,54 @@ class TourneyList(Screen):
         curr_screen = self.parent.get_screen('TourneyList')
         curr_screen.ids.search_tourney_date.text = str(value)
 
+    def on_pre_enter(self, *args):
+        super().on_pre_enter(self, *args)
+
+        self.feed_list()
+
+    def feed_list(self, t_id=None, t_date=None, t_name=None):
+        """feed the list of tournaments in the scrollview / MDList of
+        id = tourney_list
+        if a search is returning nothing, the function breaks and returns the code
+        False and will not affect the page + launch a pop up saying nothing was found
+        """
+        curr_screen = self.parent.get_screen('TourneyList')
+        if not any((t_id, t_date, t_name)):
+            curr_screen.ids.tourney_list.clear_widgets()
+            tourney_list = dab.get_tourneys_list()
+            for tour in tourney_list:
+                curr_screen.ids.tourney_list.add_widget(
+                    OneLineListItem(
+                        text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
+                    )
+                )
+
+        elif t_id:
+            curr_screen.ids.tourney_list.clear_widgets()
+            tourney_list = dab.get_tourneys_list(t_id)
+            if not tourney_list:
+                return print("False")
+
+            for tour in tourney_list:
+                curr_screen.ids.tourney_list.add_widget(
+                    OneLineListItem(
+                        text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
+                    )
+                )
+
+        elif t_date:
+            curr_screen.ids.tourney_list.clear_widgets()
+            players_list = dab.get_tourneys_list((t_date,))
+            for tour in players_list:
+                curr_screen.ids.tourney_list.add_widget(
+                    OneLineListItem(
+                        text=f"{tour[0]} | {tour[2]}  |  {tour[2]}",
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
+                    )
+                )
+
     def on_cancel(self, instance, value):
         """
         Events called when the "CANCEL" dialog box button is clicked.'
@@ -98,14 +147,6 @@ class TourneyList(Screen):
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
-
-    def tourney_search(self):
-        #TODO: make the function feed the players list without the error
-        curr_screen = self.parent.get_screen('TourneyList')
-        for x in range(10):
-            curr_screen.ids.players_list.add_widget(
-                OneLineListItem(text=f"Single-line item {x}")
-            )
 
 class NewTourney(Screen):
     def __init__(self, **kwargs):
