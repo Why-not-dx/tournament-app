@@ -34,30 +34,20 @@
                     size_hint_x: .3
                     pos_hint: {"right": 1}
                     text: "Next round"
-                    on_release: root.tourney_search()
+                    on_release: root.feed_list()
 
             MDScrollView:
                 adaptive_height: True
                 MDList:
                     id: rounds_list
-                    OneLineListItem:
-                        text:"Round 1 "
-                        theme_text_color: "Custom"
-                        text_color: MainPurple
-                    OneLineListItem:
-                        text:"Round 2 "
-                        theme_text_color: "Custom"
-                        text_color: MainPurple
-                        on_release:
-                            root.manager.current = "MainPage"
-                            root.manager.transition.direction = "left"
+
 
 
             MyButton:
                 adaptive_height: True
                 text: "Back"
                 on_press:
-                    root.manager.current = "MainPage"
+                    root.manager.current = "TourneyList"
                     root.manager.transition.direction = "left"
 
 

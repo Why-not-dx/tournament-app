@@ -38,6 +38,7 @@
                     size_hint: (None, None)
                     size: (300, 50)
                     pos_hint: {"top": 0, "center_x": 1}
+                    icon_right: "key"
                     font_size: 16
                     line_color_normal: app.theme_cls.primary_light
 
@@ -59,6 +60,7 @@
                     size_hint: (None, None)
                     size: (300, 50)
                     pos_hint: {"top": 0, "center_x": .5}
+                    icon_right: "tournament"
                     font_size: 16
                     line_color_normal: app.theme_cls.primary_light
 
@@ -100,11 +102,25 @@
                         on_release: root.show_date_picker()
 
 
-            MyButton:
-                size_hint: (.5, .05)
-                text: "SEARCH"
-                on_press:
-                    root.feed_list(search_id_tourney.text, search_name_tourney.text , search_tourney_date.text)
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint: (1, .1)
+                spacing: 20
+                pos_hint: {"center_y": .5}
+
+                MyButton:
+                    size_hint: (.5, 1)
+                    text: "CLEAR SEARCH"
+                    on_press:
+                        search_id_tourney.text = ""
+                        search_tourney_date.text = ""
+                        search_name_tourney.text = ""
+                        root.feed_list()
+                MyButton:
+                    size_hint: (.5, 1)
+                    text: "SEARCH"
+                    on_press:
+                        root.feed_list(search_id_tourney.text, search_tourney_date.text, search_name_tourney.text )
 
 
             MyButton:

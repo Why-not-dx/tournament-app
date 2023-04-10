@@ -2,120 +2,127 @@
 
 <NewTourney>:
     name: "NewTourney"
-    MDBoxLayout:
+    BoxLayout:
         orientation: "vertical"
-        padding: dp(25)
+        MyTopAppBar:
+            title: "NEW TOURNAMENT"
 
         MDBoxLayout:
-            padding: dp(25)
-            spacing: dp(25)
-            size_hint_y: .4
-
-            TitleLabel:
-                pos_hint: {"center_y": .5}
-                text: "CREATE A NEW TOURNAMENT"
-                font_style: "H3"
-
-        MDBoxLayout:
-            adaptive_height: True
             orientation: "vertical"
-            spacing: 10
-            size_hint_y: .6
+            padding: dp(25)
+            spacing: dp(30)
 
-            TitleLabel:
-                adaptive_height: True
-                text: "NAME"
-                valign: "top"
-                halign: "left"
-                font_style: "H6"
-                size_hint: (.7, None)
-                pos_hint: {"center_x":.5}
-                theme_text_color: "Custom"
-                text_color: MainPurple
+            MDBoxLayout:
+                padding: dp(25)
+                spacing: dp(25)
+                size_hint_y: .3
 
-
-            MDTextField:
-                adaptive_height: True
-                id: new_tourney_name
-                size_hint_x: .7
-                pos_hint: {"center_x": .5}
-                icon_right: "android"
-                halign: "center"
-                line_color_normal: app.theme_cls.primary_light
-
-
-            TitleLabel:
-                adaptive_height: True
-                size_hint: (.7, None)
-                pos_hint: {"center_x":.5}
-                valign: "top"
-                halign: "left"
-                text: "FORMAT"
-                font: "M5"
-
-            MDTextField:
-                adaptive_height: True
-                id: new_tourney_format
-                size_hint_x: .7
-                pos_hint: {"center_x": .5}
-                line_color_normal: app.theme_cls.primary_light
-
-            TitleLabel:
-                adaptive_height: True
-                size_hint: (.7, None)
-                pos_hint: {"center_x":.5}
-                valign: "top"
-                halign: "left"
-                text: "DATE"
-                font: "M5"
-
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint: (None, None)
-                size: (300, 50)
-                spacing: 10
-                pos_hint: {"center_y": .5}
-
-
-                MDLabel:
-                    id: search_tourney_date
-                    size_hint: (None, None)
-                    size: (270, 50)
-                    pos_hint: { "center_x": .5}
-                    halign: "center"
-                    valign: "center"
-                    font_style: "H6"
-                    text: ""
-
-                MDRaisedButton:
-                    id: search_tourney_date_button
-                    size_hint: (None, None)
-                    size: (200, 50)
-                    pos_hint: {"center_y": .5, "x": .5}
-                    text: "Pick a date"
-                    on_release: root.show_date_picker()
-
-
+                TitleLabel:
+                    pos_hint: {"center_y": .5}
+                    text: "CREATE A NEW TOURNAMENT"
+                    font_style: "H4"
 
             MDBoxLayout:
                 adaptive_height: True
                 orientation: "vertical"
-                size_hint_y: .2
-                spacing: dp(25)
+                spacing: 10
+                size_hint_y: .7
 
-                MyButton:
+                TitleLabel:
+                    adaptive_height: True
+                    text: "NAME"
+                    valign: "top"
+                    halign: "left"
+                    font_style: "H6"
+                    size_hint: (.7, None)
+                    pos_hint: {"center_x":.5}
+                    theme_text_color: "Custom"
+                    text_color: MainPurple
+
+
+                MDTextField:
+                    adaptive_height: True
+                    id: new_tourney_name
                     size_hint_x: .7
-                    spacing: dp(25)
-                    pos_hint: {"x":.15}
-                    text: "CREATE TOURNAMENT"
-                    on_press:
-                        print(new_tourney_name.text)
+                    pos_hint: {"center_x": .5}
+                    icon_right: "account"
+                    halign: "left"
+                    line_color_normal: app.theme_cls.primary_light
 
-                MyButton:
-                    size_hint_x: .3
+
+                TitleLabel:
+                    adaptive_height: True
+                    size_hint: (.7, None)
+                    pos_hint: {"center_x":.5}
+                    valign: "top"
+                    halign: "left"
+                    text: "FORMAT"
+                    font: "M5"
+
+                MDTextField:
+                    adaptive_height: True
+                    id: new_tourney_format
+                    size_hint_x: .7
+                    pos_hint: {"center_x": .5}
+                    icon_right: "arch"
+                    line_color_normal: app.theme_cls.primary_light
+
+                TitleLabel:
+                    adaptive_height: True
+                    size_hint: (.7, None)
+                    pos_hint: {"center_x":.5}
+                    valign: "top"
+                    halign: "left"
+                    text: "DATE"
+                    font: "M5"
+
+                BoxLayout:
+                    orientation: "horizontal"
+                    size_hint: (None, None)
+                    size: (300, 50)
+                    spacing: 10
+                    pos_hint: {"center_y": .5}
+
+
+                    MDLabel:
+                        id: search_tourney_date
+                        size_hint: (None, None)
+                        size: (270, 50)
+                        pos_hint: { "center_x": .5}
+                        halign: "center"
+                        valign: "center"
+                        font_style: "H6"
+                        text: ""
+
+                    MDRaisedButton:
+                        id: search_tourney_date_button
+                        size_hint: (None, None)
+                        size: (200, 50)
+                        pos_hint: {"center_y": .5, "x": .5}
+                        text: "Pick a date"
+                        on_release: root.show_date_picker()
+
+
+
+                MDBoxLayout:
+                    adaptive_height: True
+                    orientation: "vertical"
+                    size_hint_y: .2
                     spacing: dp(25)
-                    pos_hint: {"right":.85}
-                    text: "Back"
-                    on_press:
-                        root.manager.current = "MainPage"
-                        root.manager.transition.direction = "left"
+
+                    MyButton:
+                        size_hint_x: .7
+                        spacing: dp(25)
+                        pos_hint: {"x":.15}
+                        text: "CREATE TOURNAMENT"
+                        on_press:
+                            root.create_tournament(new_tourney_name.text,new_tourney_format.text,search_tourney_date.text)
+
+                    MyButton:
+                        size_hint_x: .3
+                        spacing: dp(25)
+                        pos_hint: {"right":.85}
+                        text: "Back"
+                        on_press:
+                            root.manager.current = "MainPage"
+                            root.manager.transition.direction = "left"

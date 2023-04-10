@@ -79,15 +79,18 @@ def enroll_players(p: list) -> bool:
     return True
 
 
-def create_tourney(t_type: str, t_name: str) -> int:
+def create_tourney(t_type: str, t_name: str, t_date: str) -> int:
     """
     initialise tournament and return the ID of the generated tournament
     """
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
-    params = (t_type, today, t_name,)
+    # today = datetime.datetime.now().strftime("%d-%m-%Y")
+    params = (t_type, t_date, t_name,)
     command = """INSERT INTO tourneys(t_type, t_date, t_name) VALUES (?, ?, ?)"""
-    cur.execute(command, params)
-    con.commit()
+    try:
+        cur.execute(command, params)
+        con.commit()
+    except sqlite3.IntegrityError:
+        return "This tournament can't be created"
 
     query = f"SELECT t_id FROM tourneys WHERE t_name = ?"
 
@@ -96,14 +99,19 @@ def create_tourney(t_type: str, t_name: str) -> int:
 
 def get_tourneys_list(t_id=None, t_date=None, t_name=None):
     """ Returns the list of tournaments and their details"""
+    print(t_id, t_date, t_name)
     if not any((t_id, t_date, t_name)):
         tournament_list = cur.execute("""SELECT * from tourneys""")
 
     elif t_id:
-        tournament_list = cur.execute(
-            """SELECT * from tourneys WHERE (t_id=?)""",
-            (t_id,)
+        try:
+            tournament_list = cur.execute(
+                """SELECT * from tourneys WHERE (t_id=?)""",
+                (t_id,)
             )
+        except:
+            return print("there has been a problem")
+
 
     elif t_name and t_date:
         tournament_list = cur.execute(
@@ -113,7 +121,7 @@ def get_tourneys_list(t_id=None, t_date=None, t_name=None):
 
     elif t_name:
         tournament_list = cur.execute(
-            """SELECT * from tourneys WHERE (t_name=?)""",
+            """SELECT * from tourneys WHERE INSTR(t_name, ?)""",
             (t_name,)
             )
 

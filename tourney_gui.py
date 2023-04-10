@@ -1,8 +1,11 @@
 # Link all the tournament functions into the GUI
 import sqlite3
+
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
+
 import my_tourneys as dab
 import pairing as pr
-from sqlite3 import OperationalError
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -25,7 +28,6 @@ class PlayersList(Screen):
         super().on_pre_enter(*args)
         self.feed_list()
 
-
     def feed_list(self, p_id=None, p_name=None, p_surname=None):
         """
         Checks nature of the call, if empty, returns all players in list
@@ -39,7 +41,7 @@ class PlayersList(Screen):
                 curr_screen.ids.players_list.add_widget(
                     OneLineListItem(
                         text=f"{player[0]} | {player[1]}  |  {player[2]}",
-                        bg_color=(122/255, 48/255, 108/255, .1)
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
                     )
                 )
 
@@ -51,7 +53,7 @@ class PlayersList(Screen):
                 curr_screen.ids.players_list.add_widget(
                     OneLineListItem(
                         text=f"{player[0]} | {player[1]}  |  {player[2]}",
-                        bg_color=(122/255, 48/255, 108/255, .1)
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
                     )
                 )
 
@@ -64,16 +66,14 @@ class PlayersList(Screen):
                 curr_screen.ids.players_list.add_widget(
                     OneLineListItem(
                         text=f"{player[0]} | {player[1]}  |  {player[2]}",
-                        bg_color=(122/255, 48/255, 108/255, .1)
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
                     )
                 )
-
 
 
 class TourneyList(Screen):
     def __init__(self, **kwargs):
         super(TourneyList, self).__init__(**kwargs)
-
 
     def on_save(self, instance, value, date_range):
         """
@@ -107,7 +107,8 @@ class TourneyList(Screen):
                 curr_screen.ids.tourney_list.add_widget(
                     OneLineListItem(
                         text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
-                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
+                        on_release=lambda x: self.change_screen()
                     )
                 )
 
@@ -121,20 +122,26 @@ class TourneyList(Screen):
                 curr_screen.ids.tourney_list.add_widget(
                     OneLineListItem(
                         text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
-                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
+                        on_release=lambda x: self.change_screen()
                     )
                 )
 
-        elif t_date:
+        else:
             curr_screen.ids.tourney_list.clear_widgets()
-            players_list = dab.get_tourneys_list((t_date,))
-            for tour in players_list:
+            tourney_list = dab.get_tourneys_list(t_name=t_name, t_date=t_date)
+            if not tourney_list:
+                return print("False")
+
+            for tour in tourney_list:
                 curr_screen.ids.tourney_list.add_widget(
                     OneLineListItem(
-                        text=f"{tour[0]} | {tour[2]}  |  {tour[2]}",
-                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
+                        text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
+                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
+                        on_release=lambda x: self.change_screen()
                     )
                 )
+
 
     def on_cancel(self, instance, value):
         """
@@ -147,10 +154,15 @@ class TourneyList(Screen):
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
+    def change_screen(self):
+        curr_screen = self.parent.get_screen('TourneyList')
+        curr_screen.manager.current = "TournamentScreen"
+
 
 class NewTourney(Screen):
     def __init__(self, **kwargs):
         super(NewTourney, self).__init__(**kwargs)
+        self.dialog = None
 
     def on_save(self, instance, value, date_range):
         """
@@ -176,22 +188,52 @@ class NewTourney(Screen):
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
+    def show_alert_dialog_creation(self, t_id=None):
+        if not self.dialog:
+            if not t_id:
+                self.dialog = MDDialog(
+                    text="This tournament cannot be created \nMissing informations",
+                )
+            elif t_id:
+                self.dialog = MDDialog(
+                    text=f"Your tournament was created with id number {t_id}"
+                )
+        self.dialog.open()
+
+    def create_tournament(self, t_name, t_format, t_date):
+        """
+        Takes all information and add tournament to the data base then
+        launch a pop up to confirm it's done and returns to main page
+        """
+        print(t_name, t_format, t_date)
+        if t_name == "" or t_format == "" or t_date == "":
+            self.show_alert_dialog_creation()
+
+        else:
+            new_tourney = dab.create_tourney(t_format, t_name, t_date)
+            self.show_alert_dialog_creation(new_tourney)
+
 
 
 class TournamentScreen(Screen):
     def __init__(self, **kwargs):
         super(TournamentScreen, self).__init__(**kwargs)
 
-    def tourney_search(self):
-        #TODO: make the function feed the players list without the error
+    # def on_pre_enter(self):
+    #     super().on_pre_enter(self)
+    #     # TODO: make the function feed the players list without the error
+    #     self.feed_list()
+
+    def feed_list(self):
         curr_screen = self.parent.get_screen('TournamentScreen')
         for x in range(10):
             curr_screen.ids.rounds_list.add_widget(
-                OneLineListItem(text=f"Single-line item {x}")
+                OneLineListItem(text=f"Single-line item {x}",
+                                on_release=lambda x: self.change_screen()
+                                )
             )
 
     def add_table(self):
-
         self.data_tables = MDDataTable(
             size_hint=(1, 1),
             pos_hint={"center_y": .5, "center_x": .5},
@@ -215,7 +257,9 @@ class TournamentScreen(Screen):
         )
         self.popuptable.open()
 
-
+    def change_screen(self):
+        curr_screen = self.parent.get_screen('TournamentList')
+        curr_screen.manager.current = "TournamentScreen"
 
 
 class ScreenManager(ScreenManager):
@@ -234,15 +278,14 @@ class TourneyApp(MDApp):
             pass
 
     def player_search(self):
-        #Because of the screen system, calling function returns an empty list
-        #you need to use the root.get_screen('name of screen') to access it like you would access root.
+        # Because of the screen system, calling function returns an empty list
+        # you need to use the root.get_screen('name of screen') to access it like you would access root.
         curr_screen = self.root.get_screen('PlayersList')
-        #ToDO: replace code with sql query of all players
+        # ToDO: replace code with sql query of all players
         for x in range(10):
             curr_screen.ids.players_list.add_widget(
                 OneLineListItem(text=f"Single-line item {x}")
             )
-
 
     def light_dark_change(self):
         """change the light or dark mode"""
