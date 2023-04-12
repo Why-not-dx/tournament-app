@@ -1,18 +1,38 @@
 # Link all the tournament functions into the GUI
 import sqlite3
 
+from kivy.properties import ObjectProperty
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
-
+from kivymd.uix.selectioncontrol import MDCheckbox
 import my_tourneys as dab
 import pairing as pr
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.datatables import MDDataTable
-from kivymd.uix.list import OneLineListItem
+from kivymd.uix.list import OneLineListItem, OneLineAvatarIconListItem, IconLeftWidget, IRightBodyTouch
 from kivymd.uix.pickers import MDDatePicker
 from kivy.metrics import dp
+
+
+class RightCheckbox(IRightBodyTouch, MDCheckbox):
+    """Custom right container."""
+
+    selection_items = []
+
+    def on_active(self, rcb, value):
+        """go up 2 levels to get the line and retrieve the ID from it with split"""
+        p_id = self.parent.parent.text.split(" |")[0]
+        myapp = MDApp.get_running_app().root.get_screen("PlayersList")
+
+        if value:
+            print(p_id)
+            myapp.checkbox_check(value, p_id)
+        else:
+            print("false")
+            myapp.checkbox_check(value, p_id)
+
 
 
 class MainPage(Screen):
@@ -22,11 +42,20 @@ class MainPage(Screen):
 class PlayersList(Screen):
     def __init__(self, **kwargs):
         super(PlayersList, self).__init__(**kwargs)
+        self.dialog = None
+        self.players_check = []
 
     def on_pre_enter(self, *args):
         """when loading the page, adds on the list of all players in the app"""
         super().on_pre_enter(*args)
         self.feed_list()
+        self.clear_texts()
+
+    def clear_texts(self):
+        """emptying boxes of the page"""
+        self.ids.search_id.text = ""
+        self.ids.search_name.text = ""
+        self.ids.search_surname.text = ""
 
     def feed_list(self, p_id=None, p_name=None, p_surname=None):
         """
@@ -36,10 +65,13 @@ class PlayersList(Screen):
         """
         curr_screen = self.parent.get_screen('PlayersList')
         if not any((p_id, p_name, p_surname)):
+            curr_screen.ids.players_list.clear_widgets()
             players_list = dab.read_players()
             for player in players_list:
                 curr_screen.ids.players_list.add_widget(
-                    OneLineListItem(
+                    OneLineAvatarIconListItem(
+                        IconLeftWidget(icon="account"),
+                        RightCheckbox(),
                         text=f"{player[0]} | {player[1]}  |  {player[2]}",
                         bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
                     )
@@ -51,7 +83,8 @@ class PlayersList(Screen):
 
             for player in players_list:
                 curr_screen.ids.players_list.add_widget(
-                    OneLineListItem(
+                    OneLineAvatarIconListItem(
+                        IconLeftWidget(icon="account"),
                         text=f"{player[0]} | {player[1]}  |  {player[2]}",
                         bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
                     )
@@ -64,11 +97,56 @@ class PlayersList(Screen):
             )
             for player in players_list:
                 curr_screen.ids.players_list.add_widget(
-                    OneLineListItem(
+                    OneLineAvatarIconListItem(
+                        IconLeftWidget(icon="account"),
                         text=f"{player[0]} | {player[1]}  |  {player[2]}",
                         bg_color=(122 / 255, 48 / 255, 108 / 255, .1)
                     )
                 )
+        self.clear_texts()
+
+    def show_alert_dialog_creation(self, p_id=None):
+        if not self.dialog:
+            if not p_id:
+                self.dialog = MDDialog(
+                    text="This player couldn't be created \nPlease try again",
+                )
+            elif p_id:
+                self.dialog = MDDialog(
+                    text=f"Your player was added with the id number :\n {p_id}"
+                )
+        self.dialog.open()
+
+    def add_player(self, p_name, p_surname):
+        """add player in the players_list form to you data base"""
+        try:
+            print(p_name, p_surname)
+            enrolling = dab.enroll_players((p_name, p_surname))
+            self.feed_list() #resets the players shown to show new players
+            self.clear_texts()
+        except:
+            print("Failed")
+            return
+        return self.show_alert_dialog_creation(enrolling)
+
+    def players_delete(self):
+        """keeps updates the list of players selected to perform an action"""
+        p_ids = [(x,) for x in self.players_check]
+        print("pre_test", p_ids)
+        call = dab.delete_players(p_ids)
+        self.feed_list()
+
+        print("called", call)
+
+    def checkbox_check(self, value, p_id):
+        if value:
+            self.players_check.append(p_id)
+        else:
+            self.players_check.remove(p_id)
+
+        print("function in screen", self.players_check)
+
+
 
 
 class TourneyList(Screen):
@@ -90,8 +168,14 @@ class TourneyList(Screen):
 
     def on_pre_enter(self, *args):
         super().on_pre_enter(self, *args)
-
         self.feed_list()
+        self.clear_texts()
+
+    def clear_texts(self):
+        """ to clear everty input on load of the page"""
+        self.ids.search_id_tourney.text = ""
+        self.ids.search_name_tourney.text = ""
+        self.ids.search_tourney_date .text= ""
 
     def feed_list(self, t_id=None, t_date=None, t_name=None):
         """feed the list of tournaments in the scrollview / MDList of
@@ -141,7 +225,7 @@ class TourneyList(Screen):
                         on_release=lambda x: self.change_screen()
                     )
                 )
-
+        self.clear_texts()
 
     def on_cancel(self, instance, value):
         """
@@ -212,7 +296,6 @@ class NewTourney(Screen):
         else:
             new_tourney = dab.create_tourney(t_format, t_name, t_date)
             self.show_alert_dialog_creation(new_tourney)
-
 
 
 class TournamentScreen(Screen):

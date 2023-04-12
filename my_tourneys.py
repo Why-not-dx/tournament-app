@@ -66,17 +66,21 @@ def db_create():
     con.commit()
 
 
-def enroll_players(p: list) -> bool:
+def enroll_players(p: list) -> str:
     # check the list for format
     # check for player already existing ?
     # error messages if needed
 
-    cur.executemany(
+    print(p)
+
+    cur.execute(
         """INSERT INTO  players(p_name, p_surname) VALUES (?, ?)""",
         p
     )
     con.commit()
-    return True
+    new_player_id = cur.execute("""SELECT p_id FROM players WHERE p_name = ? AND p_surname = ?""",
+                p)
+    return new_player_id.fetchall()[0][0]
 
 
 def create_tourney(t_type: str, t_name: str, t_date: str) -> int:
@@ -146,12 +150,12 @@ def get_players_id(infos: list) -> list:
             infos)
     elif infos[0] and not infos[1]:
         names = cur.execute(
-            """SELECT * FROM players WHERE (p_name =?)""",
+            """SELECT * FROM players WHERE INSTR(p_name , ?)""",
             (infos[0],)
         )
     elif not infos[0] and infos[1]:
         names = cur.execute(
-            """SELECT * FROM players WHERE (p_surname= ?)""",
+            """SELECT * FROM players WHERE INSTR(p_surname , ?)""",
             (infos[1],)
         )
 
@@ -171,7 +175,13 @@ def read_players() -> list:
     call = cur.execute("""SELECT * FROM players""")
     return call.fetchall()
 
+def delete_players(p_ids: list) -> bool:
+    """delete players based on list of ids"""
 
+    call = """DELETE FROM players WHERE p_id = ?"""
+    cur.executemany(call,p_ids)
+    con.commit()
+    return (p_ids)
 
 def players_list(t_id: int) -> list:
     """

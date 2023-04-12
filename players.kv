@@ -9,7 +9,7 @@
         MDBoxLayout:
             padding: dp(25)
             spacing: 20
-            padding: 20
+            padding: 35
             orientation: "vertical"
 
             MDScrollView:
@@ -21,33 +21,38 @@
 
             MDGridLayout:
                 cols: 2
-                size_hint: (1, .35)
-                spacing: 7
+                size_hint: (.9, .4)
+                pos_hint: {"center_x": .5}
+                spacing: 10
 
                 MDLabel:
-                    theme_text_color: "Custom"
                     text_color: MainPurple
-                    size_hint: (.3, .25)
-                    font_style: "H6"
+                    size_hint: (None, None)
+                    size: (130, 50)
                     pos_hint: {"x":0}
                     valign: "top"
-                    halign: "left"
+                    halign: "center"
+                    theme_text_color: "Custom"
+                    font_style: "Body1"
                     text: "ID"
 
                 MDTextField:
                     id: search_id
-                    size_hint: (.7, .25)
+                    size_hint: (None, None)
+                    pos_hint: {"center_x": .7}
+                    size: (200, 50)
                     font_size: 16
                     icon_right: "account"
                     line_color_normal: app.theme_cls.primary_light
 
                 MDLabel:
-                    size_hint: (.3, .25)
-                    halign: 'left'
+                    size_hint: (None, None)
+                    size: (130, 50)
+                    halign: "center"
                     valign: "center"
                     theme_text_color: "Custom"
                     text_color: MainPurple
-                    font_style: "H6"
+                    font_style: "Body1"
                     pos_hint: {"x":0}
                     theme_text_color: "Custom"
                     text_color: MainPurple
@@ -55,56 +60,91 @@
 
                 MDTextField:
                     id: search_name
-                    size_hint: (.7, .25)
+                    size_hint: (None, None)
+                    pos_hint: {"center_x": .5}
+                    size: (200, 50)
                     font_size: 16
                     icon_right: "account"
                     line_color_normal: app.theme_cls.primary_light
 
                 MDLabel:
-                    size_hint: (.3, .25)
+                    size_hint: (None, None)
+                    size: (130, 50)
                     theme_text_color: "Custom"
-                    halign: 'left'
+                    halign: "center"
                     valign: "center"
-                    font_style: "H6"
+                    font_style: "Body1"
                     text_color: MainPurple
                     pos_hint: {"x":0}
                     text: "SURNAME"
 
                 MDTextField:
                     id: search_surname
-                    size_hint: (.7, .25)
+                    size_hint: (None, None)
+                    pos_hint: {"center_x": .5}
+                    size: (200, 50)
                     font_size: 16
                     icon_right: "account"
                     line_color_normal: app.theme_cls.primary_light
 
                 MDLabel:
-                    size_hint: (.3, .25)
+                    size_hint: (None, None)
+                    size: (130, 50)
                     theme_text_color: "Custom"
-                    halign: 'left'
+                    halign: "center"
                     valign: "center"
-                    font_style: "H6"
+                    font_style: "Body1"
                     text_color: MainPurple
                     pos_hint: {"x":0}
                     text: "TOURNAMENT ID"
 
                 MDTextField:
                     id: search_t_id
-                    size_hint: (.7, .25)
+                    size_hint: (None, None)
+                    pos_hint: {"center_x": .5}
+                    size: (200, 50)
                     icon_right: "tournament"
                     font_size: 16
                     line_color_normal: app.theme_cls.primary_light
 
 
-            MyButton:
-                size_hint: (.5, .075)
-                text: "SEARCH"
-                on_press:
-                    if any((search_id.text, search_name.text , search_surname.text)):\
-                    root.feed_list(search_id.text, search_name.text , search_surname.text)
+            MDGridLayout:
+                adaptive_height: True
+                size_hint_x: .9
+                cols: 2
+                pos_hint: {"center_x": .5}
+                spacing: 20
 
-            MyButton:
-                size_hint: (.3, .075)
-                text: "BACK"
-                on_press:
-                    root.manager.current = "MainPage"
-                    root.manager.transition.direction = "right"
+                MDRaisedButton:
+                    adaptive_size: True
+                    #size_hint: (.25, 1)
+                    text: "ADD PLAYER"
+                    on_press: root.add_player(search_name.text, search_surname.text)
+
+                MDRaisedButton:
+                    adaptive_size: True
+                    #size_hint: (.25, 1)
+                    #pos_hint: {"center_x": .5}
+                    text: "SEARCH PLAYER"
+                    on_press:
+                        if any((search_id.text, search_name.text , search_surname.text)):\
+                        root.feed_list(search_id.text, search_name.text , search_surname.text)
+
+                MDRaisedButton:
+                    adaptive_size: True
+                    #size_hint: (.25, 1)
+                    #pos_hint: {"center_x": 1}
+                    text: "DELETE SELECTED"
+                    on_press:
+                        root.players_delete()
+
+                MDRaisedButton:
+                    adaptive_size: True
+                    #size_hint: (.25, 1)
+                    #pos_hint: {"right": 1}
+                    text: "BACK"
+                    on_press:
+                        root.manager.current = "MainPage"
+                        root.manager.transition.direction = "right"
+
+
