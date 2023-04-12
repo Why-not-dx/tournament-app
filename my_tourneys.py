@@ -71,16 +71,15 @@ def enroll_players(p: list) -> str:
     # check for player already existing ?
     # error messages if needed
 
-    print(p)
-
     cur.execute(
         """INSERT INTO  players(p_name, p_surname) VALUES (?, ?)""",
         p
     )
     con.commit()
-    new_player_id = cur.execute("""SELECT p_id FROM players WHERE p_name = ? AND p_surname = ?""",
-                p)
-    return new_player_id.fetchall()[0][0]
+    # """SELECT p_id FROM players WHERE p_name = ? AND p_surname = ?"""
+    new_player_id = cur.execute("""SELECT MAX(p_id) FROM players""")
+    p_id = new_player_id.fetchall()[0][0]
+    return p_id
 
 
 def create_tourney(t_type: str, t_name: str, t_date: str) -> int:

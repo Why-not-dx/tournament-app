@@ -16,6 +16,8 @@ from kivymd.uix.pickers import MDDatePicker
 from kivy.metrics import dp
 
 
+#TODO : link MDLists to tournament data then allow to create match up by selecting players from a pop up ?
+
 class RightCheckbox(IRightBodyTouch, MDCheckbox):
     """Custom right container."""
 
@@ -106,15 +108,22 @@ class PlayersList(Screen):
         self.clear_texts()
 
     def show_alert_dialog_creation(self, p_id=None):
-        if not self.dialog:
-            if not p_id:
-                self.dialog = MDDialog(
-                    text="This player couldn't be created \nPlease try again",
-                )
-            elif p_id:
-                self.dialog = MDDialog(
-                    text=f"Your player was added with the id number :\n {p_id}"
-                )
+        self.dialog = None
+        if not p_id:
+            self.dialog = MDDialog(
+                text="This player couldn't be created \nPlease try again",
+            )
+        elif p_id:
+            self.dialog = MDDialog(
+                text=f"Your player was added with the id number :\n {p_id}",
+                buttons=[
+                    MDFlatButton(
+                        text="ok",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda _: self.dialog.dismiss()
+                    )
+                ]
+            )
         self.dialog.open()
 
     def add_player(self, p_name, p_surname):
