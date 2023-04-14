@@ -173,13 +173,23 @@ def read_players() -> list:
     call = cur.execute("""SELECT * FROM players""")
     return call.fetchall()
 
-def delete_players(p_ids: list) -> bool:
+def delete_players(p_ids: list) -> str:
     """delete players based on list of ids"""
 
     call = """DELETE FROM players WHERE p_id = ?"""
     cur.executemany(call,p_ids)
     con.commit()
     return (p_ids)
+
+
+def delete_tourney(t_ids: list) -> str:
+    """delete players based on list of ids"""
+
+    call = """DELETE FROM tourneys WHERE t_id = ?"""
+    cur.executemany(call, t_ids)
+    con.commit()
+    return (t_ids)
+
 
 def players_list(t_id: int) -> list:
     """

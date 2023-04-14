@@ -20,21 +20,36 @@ from kivy.metrics import dp
 
 class RightCheckbox(IRightBodyTouch, MDCheckbox):
     """Custom right container."""
-
     selection_items = []
 
     def on_active(self, rcb, value):
         """go up 2 levels to get the line and retrieve the ID from it with split"""
         p_id = self.parent.parent.text.split(" |")[0]
-        myapp = MDApp.get_running_app().root.get_screen("PlayersList")
+        screen_control = MDApp.get_running_app().root.get_screen("PlayersList")
 
         if value:
             print(p_id)
-            myapp.checkbox_check(value, p_id)
+            screen_control.checkbox_check(value, p_id)
         else:
             print("false")
-            myapp.checkbox_check(value, p_id)
+            screen_control.checkbox_check(value, p_id)
 
+
+class RightCheckboxTourney(IRightBodyTouch, MDCheckbox):
+    """Custom right container."""
+    selection_items = []
+
+    def on_active(self, rcb, value):
+        """go up 2 levels to get the line and retrieve the ID from it with split"""
+        t_id = self.parent.parent.text.split(" |")[0]
+        screen_control = MDApp.get_running_app().root.get_screen("TourneyList")
+
+        if value:
+            print(t_id)
+            screen_control.checkbox_check(value, t_id)
+        else:
+            print("false")
+            screen_control.checkbox_check(value, t_id)
 
 
 class MainPage(Screen):
@@ -126,6 +141,37 @@ class PlayersList(Screen):
             )
         self.dialog.open()
 
+    def show_alert_dialog_deletion(self):
+        self.dialog = None
+        if not self.players_check:
+            self.dialog = MDDialog(
+                text=f"No player selected",
+                buttons=[
+                    MDFlatButton(
+                        text="Cancel",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda _: self.dialog.dismiss()
+                    )
+                ]
+            )
+        else:
+            self.dialog = MDDialog(
+                text=f"Delete selected players from data base ?",
+                buttons=[
+                    MDFlatButton(
+                        text="ok",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda _: self.players_delete()
+                    ),
+                    MDFlatButton(
+                        text="Cancel",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda _: self.dialog.dismiss()
+                    )
+                ]
+            )
+        self.dialog.open()
+
     def add_player(self, p_name, p_surname):
         """add player in the players_list form to you data base"""
         try:
@@ -140,11 +186,9 @@ class PlayersList(Screen):
     def players_delete(self):
         """keeps updates the list of players selected to perform an action"""
         p_ids = [(x,) for x in self.players_check]
-        print("pre_test", p_ids)
-        call = dab.delete_players(p_ids)
+        dab.delete_players(p_ids)
         self.feed_list()
-
-        print("called", call)
+        self.dialog.dismiss()
 
     def checkbox_check(self, value, p_id):
         if value:
@@ -155,11 +199,11 @@ class PlayersList(Screen):
         print("function in screen", self.players_check)
 
 
-
-
 class TourneyList(Screen):
     def __init__(self, **kwargs):
         super(TourneyList, self).__init__(**kwargs)
+        self.tourneys_check = []
+        self.dialog = None
 
     def on_save(self, instance, value, date_range):
         """
@@ -199,10 +243,12 @@ class TourneyList(Screen):
                 t_id = tour[0]
                 t_date = tour[2]
                 t_name = tour[3]
-                this_line = OneLineListItem(
-                        text=f"{t_id} | {t_date}  |  {t_name}",
-                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
-                        on_release=lambda x: self.change_screen(x.text)
+                this_line = OneLineAvatarIconListItem(
+                    IconLeftWidget(icon="account"),
+                    RightCheckboxTourney(),
+                    text=f"{t_id} | {t_date}  |  {t_name}",
+                    bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
+                    on_release=lambda x: self.change_screen(x.text),
                     )
                 curr_screen.ids.tourney_list.add_widget(this_line)
 
@@ -210,13 +256,15 @@ class TourneyList(Screen):
             curr_screen.ids.tourney_list.clear_widgets()
             tourney_list = dab.get_tourneys_list(t_id)
             if not tourney_list:
-                return print("False")
+                return False
 
             for tour in tourney_list:
                 t_id = tour[0]
                 t_date = tour[2]
                 t_name = tour[3]
-                this_line = OneLineListItem(
+                this_line = OneLineAvatarIconListItem(
+                    IconLeftWidget(icon="account"),
+                    RightCheckboxTourney(),
                     text=f"{t_id} | {t_date}  |  {t_name}",
                     bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
                     on_release=lambda x: self.change_screen(x.text)
@@ -227,13 +275,15 @@ class TourneyList(Screen):
             curr_screen.ids.tourney_list.clear_widgets()
             tourney_list = dab.get_tourneys_list(t_name=t_name, t_date=t_date)
             if not tourney_list:
-                return print("False")
+                return False
 
             for tour in tourney_list:
                 t_id = tour[0]
                 t_date = tour[2]
                 t_name = tour[3]
-                this_line = OneLineListItem(
+                this_line = OneLineAvatarIconListItem(
+                    IconLeftWidget(icon="account"),
+                    RightCheckboxTourney(),
                     text=f"{t_id} | {t_date}  |  {t_name}",
                     bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
                     on_release=lambda x: self.change_screen(x.text)
@@ -247,6 +297,7 @@ class TourneyList(Screen):
         """
         print("canceled")
 
+
     def show_date_picker(self):
         date_dialog = MDDatePicker(min_year=2022, max_year=2030)
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
@@ -258,6 +309,51 @@ class TourneyList(Screen):
         #TODO add function to get tournament rounds and infos and pass them as a data file into the next page
         curr_screen = self.parent.get_screen('TourneyList')
         curr_screen.manager.current = "TournamentScreen"
+
+    def tourney_delete(self):
+        """keeps updates the list of players selected to perform an action"""
+        t_ids = [(x,) for x in self.tourneys_check]
+        dab.delete_tourney(t_ids)
+        self.feed_list()
+        self.dialog.dismiss()
+
+    def checkbox_check(self, value, t_id):
+        if value:
+            self.tourneys_check.append(t_id)
+        else:
+            self.tourneys_check.remove(t_id)
+
+
+    def show_alert_dialog_deletion(self):
+        self.dialog = None
+        if not self.tourneys_check:
+            self.dialog = MDDialog(
+                text=f"No tournament selected",
+                buttons=[
+                    MDFlatButton(
+                        text="Cancel",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda _: self.dialog.dismiss()
+                    )
+                ]
+            )
+        else:
+            self.dialog = MDDialog(
+                text=f"Delete selected tournaments from data base ?",
+                buttons=[
+                    MDFlatButton(
+                        text="ok",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda _: self.tourney_delete()
+                    ),
+                    MDFlatButton(
+                        text="Cancel",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda _: self.dialog.dismiss()
+                    )
+                ]
+            )
+        self.dialog.open()
 
 
 class NewTourney(Screen):

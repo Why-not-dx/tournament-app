@@ -111,8 +111,30 @@
                 spacing: 20
                 pos_hint: {"center_y": .5, "center_x": .5}
 
+
                 ScreenButton:
-                    size_hint: (.2, 1)
+                    size_hint: (.5, 1)
+                    text: "DELETE SELECTED"
+                    md_bg_color: app.theme_cls.accent_color
+                    on_press:
+                        root.show_alert_dialog_deletion()
+
+                ScreenButton:
+                    size_hint: (.5, 1)
+                    md_bg_color: app.theme_cls.accent_color
+                    text: "SEARCH"
+                    on_press:
+                        root.feed_list(search_id_tourney.text, search_tourney_date.text, search_name_tourney.text )
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint: (.9, .075)
+                spacing: 20
+                pos_hint: {"center_y": .5, "right": .95}
+
+
+                ScreenButton:
+                    size_hint: (.5, 1)
                     text: "CLEAR SEARCH"
                     md_bg_color: app.theme_cls.accent_color
                     on_press:
@@ -120,21 +142,9 @@
                         search_tourney_date.text = ""
                         search_name_tourney.text = ""
                         root.feed_list()
-                ScreenButton:
-
-                    size_hint: (.8, 1)
-                    md_bg_color: app.theme_cls.accent_color
-                    text: "SEARCH"
-                    on_press:
-                        root.feed_list(search_id_tourney.text, search_tourney_date.text, search_name_tourney.text )
-
-            MDBoxLayout:
-                orientation: "vertical"
-                size_hint: (.2,.075)
-                pos_hint: {"center_y": .5, "right": .95}
 
                 ScreenButton:
-                    size_hint: (None, None)
+                    size_hint: (.5, None)
                     size: (self.parent.width, self.parent.height)
                     text: "BACK"
                     md_bg_color: app.theme_cls.accent_color

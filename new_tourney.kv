@@ -24,17 +24,16 @@
 
             MDGridLayout:
                 cols: 2
-                spacing: 15
-                size_hint: (.9, .4)
+                size_hint: (.9, .3)
                 pos_hint: {"center_x": .5}
 
                 MDLabel:
+                    size_hint: (.3, 1)
                     text: "NAME"
                     valign: "top"
-                    halign: "left"
+                    halign: "center"
                     font_style: "H6"
-                    size_hint: (None,None)
-                    size: (100, 50)
+                    pos_hint: {"top": 0}
                     theme_text_color: "Custom"
                     text_color: MainPurple
 
@@ -49,11 +48,10 @@
 
 
                 MDLabel:
-                    size_hint: (None,None)
-                    size: (100, 50)
-                    pos_hint: {"center_x":.5}
+                    size_hint: (.3, 1)
+                    pos_hint: {"top": 0}
                     valign: "top"
-                    halign: "left"
+                    halign: "center"
                     text: "FORMAT"
                     font: "H6"
                     theme_text_color: "Custom"
@@ -69,37 +67,23 @@
 
 
                 MDLabel:
-                    size_hint: (None,None)
-                    size: (100, 110)
-                    pos_hint: {"center_y":.2}
-                    valign: "center"
-                    halign: "left"
+                    size_hint: (.3, 1)
+                    pos_hint: {"top": 0}
+                    valign: "top"
+                    halign: "center"
                     text: "DATE"
                     font: "H6"
                     theme_text_color: "Custom"
                     text_color: MainPurple
 
                 BoxLayout:
-                    orientation: "vertical"
-                    size_hint: (None,None)
-                    size: (100, 110)
-                    size_hint_x: .7
-                    spacing: 10
-                    padding: 10
-                    pos_hint: {"center_y": .5, "left": 0}
-
-
-                    ScreenButton:
-                        id: search_tourney_date_button
-                        text: "Pick a date"
-                        size_hint: (1, .5)
-                        pos_hint: {"right": 1, "center_y": .5}
-                        on_release: root.show_date_picker()
+                    orientation: "horizontal"
+                    size_hint: (.3, 1)
 
                     MDLabel:
                         id: search_tourney_date
-                        size_hint: (None,None)
-                        size: (100, 50)
+                        size_int: (None, None)
+                        size: (new_tourney_format.width *.5, new_tourney_format.height*.6)
                         halign: "center"
                         valign: "center"
                         font_style: "H6"
@@ -107,13 +91,22 @@
                         text_color: MainPurple
                         text: ""
 
+                    ScreenButton:
+                        id: search_tourney_date_button
+                        size_int: (None, None)
+                        size: (new_tourney_format.width *.5, new_tourney_format.height *.6)
+                        text: "Pick a date"
+                        width: root.width *.25
+                        on_release: root.show_date_picker()
+
             MDBoxLayout:
                 adaptive_height: True
                 orientation: "vertical"
-                size_hint_y: .1
-                spacing: dp(25)
+                size_hint_y: .2
+                spacing: dp(20)
 
                 ScreenButton:
+                    adaptive_height: True
                     size_hint_x: .7
                     spacing: dp(25)
                     pos_hint: {"x":.15}
@@ -122,6 +115,7 @@
                         root.create_tournament(new_tourney_name.text,new_tourney_format.text,search_tourney_date.text)
 
                 ScreenButton:
+                    adaptive_height: True
                     size_hint_x: .3
                     spacing: dp(25)
                     pos_hint: {"right":.85}
