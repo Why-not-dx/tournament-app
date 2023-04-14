@@ -25,7 +25,10 @@ ScreenManager:
     theme_text_color: "Custom"
     padding: dp(20)
     pos_hint: {"center_x": .5, "y": .1}
-    md_bg_color: app.theme_cls.accent_light
+    md_bg_color: app.theme_cls.accent_color
+
+<ScreenButton@MDRaisedButton>:
+    md_bg_color: app.theme_cls.accent_color
 
 <MyTopAppBar@MDTopAppBar>:
     md_bg_color: app.theme_cls.primary_color

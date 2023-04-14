@@ -102,7 +102,6 @@ def create_tourney(t_type: str, t_name: str, t_date: str) -> int:
 
 def get_tourneys_list(t_id=None, t_date=None, t_name=None):
     """ Returns the list of tournaments and their details"""
-    print(t_id, t_date, t_name)
     if not any((t_id, t_date, t_name)):
         tournament_list = cur.execute("""SELECT * from tourneys""")
 

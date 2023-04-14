@@ -14,14 +14,14 @@
 
             MDScrollView:
                 id: player_scroll
-                size_hint: (1, .5)
+                size_hint: (1, .55)
                 MDList:
                     id: players_list
 
 
             MDGridLayout:
                 cols: 2
-                size_hint: (.9, .4)
+                size_hint: (.9, .3)
                 pos_hint: {"center_x": .5}
                 spacing: 10
 
@@ -87,62 +87,59 @@
                     icon_right: "account"
                     line_color_normal: app.theme_cls.primary_light
 
-                MDLabel:
-                    size_hint: (None, None)
-                    size: (130, 50)
-                    theme_text_color: "Custom"
-                    halign: "center"
-                    valign: "center"
-                    font_style: "Body1"
-                    text_color: MainPurple
-                    pos_hint: {"x":0}
-                    text: "TOURNAMENT ID"
 
-                MDTextField:
-                    id: search_t_id
-                    size_hint: (None, None)
-                    pos_hint: {"center_x": .5}
-                    size: (200, 50)
-                    icon_right: "tournament"
-                    font_size: 16
-                    line_color_normal: app.theme_cls.primary_light
-
-
-            MDGridLayout:
+            MDBoxLayout:
+                orientation: "horizontal"
                 adaptive_height: True
-                size_hint_x: .9
-                cols: 2
-                pos_hint: {"center_x": .5}
+                size_hint_x: 1
                 spacing: 20
+                pos_hint: {"left": 0}
 
-                MDRaisedButton:
-                    adaptive_size: True
-                    #size_hint: (.25, 1)
-                    text: "ADD PLAYER"
+                ScreenButton:
+                    size_hint: (None, None)
+                    width: root.width*.25
+                    pos_hint: {"center_x": .5}
+                    text: "Add player"
                     on_press: root.add_player(search_name.text, search_surname.text)
 
-                MDRaisedButton:
-                    adaptive_size: True
-                    #size_hint: (.25, 1)
-                    #pos_hint: {"center_x": .5}
-                    text: "SEARCH PLAYER"
+                ScreenButton:
+                    size_hint: (None, None)
+                    width: root.width*.25
+                    pos_hint: {"right": 1}
+                    text: "Search player"
                     on_press:
                         if any((search_id.text, search_name.text , search_surname.text)):\
                         root.feed_list(search_id.text, search_name.text , search_surname.text)
 
-                MDRaisedButton:
-                    adaptive_size: True
-                    #size_hint: (.25, 1)
-                    #pos_hint: {"center_x": 1}
-                    text: "DELETE SELECTED"
+                ScreenButton:
+                    size_hint: (None, None)
+                    width: root.width*.25
+                    pos_hint: {"center_x": .5}
+                    text: "Delete player"
                     on_press:
                         root.players_delete()
 
-                MDRaisedButton:
-                    adaptive_size: True
-                    #size_hint: (.25, 1)
-                    #pos_hint: {"right": 1}
-                    text: "BACK"
+            MDBoxLayout:
+                orientation: "horizontal"
+                adaptive_height: True
+                size_hint_x: .66
+                pos_hint: {"right": 1}
+                spacing: 20
+
+                ScreenButton:
+                    size_hint: (None, None)
+                    width: root.width * .25
+                    pos_hint: {"center_x": .5}
+                    text: "Reset filter"
+                    on_press:
+                        root.clear_texts()
+                        root.feed_list()
+
+                ScreenButton:
+                    size_hint: (None, None)
+                    width: root.width * .25
+                    pos_hint: {"right": 1}
+                    text: "Back"
                     on_press:
                         root.manager.current = "MainPage"
                         root.manager.transition.direction = "right"

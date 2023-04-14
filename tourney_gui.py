@@ -129,7 +129,6 @@ class PlayersList(Screen):
     def add_player(self, p_name, p_surname):
         """add player in the players_list form to you data base"""
         try:
-            print(p_name, p_surname)
             enrolling = dab.enroll_players((p_name, p_surname))
             self.feed_list() #resets the players shown to show new players
             self.clear_texts()
@@ -197,13 +196,15 @@ class TourneyList(Screen):
             curr_screen.ids.tourney_list.clear_widgets()
             tourney_list = dab.get_tourneys_list()
             for tour in tourney_list:
-                curr_screen.ids.tourney_list.add_widget(
-                    OneLineListItem(
-                        text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
+                t_id = tour[0]
+                t_date = tour[2]
+                t_name = tour[3]
+                this_line = OneLineListItem(
+                        text=f"{t_id} | {t_date}  |  {t_name}",
                         bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
-                        on_release=lambda x: self.change_screen()
+                        on_release=lambda x: self.change_screen(x.text)
                     )
-                )
+                curr_screen.ids.tourney_list.add_widget(this_line)
 
         elif t_id:
             curr_screen.ids.tourney_list.clear_widgets()
@@ -212,13 +213,15 @@ class TourneyList(Screen):
                 return print("False")
 
             for tour in tourney_list:
-                curr_screen.ids.tourney_list.add_widget(
-                    OneLineListItem(
-                        text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
-                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
-                        on_release=lambda x: self.change_screen()
-                    )
+                t_id = tour[0]
+                t_date = tour[2]
+                t_name = tour[3]
+                this_line = OneLineListItem(
+                    text=f"{t_id} | {t_date}  |  {t_name}",
+                    bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
+                    on_release=lambda x: self.change_screen(x.text)
                 )
+                curr_screen.ids.tourney_list.add_widget(this_line)
 
         else:
             curr_screen.ids.tourney_list.clear_widgets()
@@ -227,13 +230,15 @@ class TourneyList(Screen):
                 return print("False")
 
             for tour in tourney_list:
-                curr_screen.ids.tourney_list.add_widget(
-                    OneLineListItem(
-                        text=f"{tour[0]} | {tour[2]}  |  {tour[3]}",
-                        bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
-                        on_release=lambda x: self.change_screen()
-                    )
+                t_id = tour[0]
+                t_date = tour[2]
+                t_name = tour[3]
+                this_line = OneLineListItem(
+                    text=f"{t_id} | {t_date}  |  {t_name}",
+                    bg_color=(122 / 255, 48 / 255, 108 / 255, .1),
+                    on_release=lambda x: self.change_screen(x.text)
                 )
+                curr_screen.ids.tourney_list.add_widget(this_line)
         self.clear_texts()
 
     def on_cancel(self, instance, value):
@@ -247,7 +252,10 @@ class TourneyList(Screen):
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
-    def change_screen(self):
+    def change_screen(self, t_id: str):
+        t_id = t_id.split("|")[0]
+        tournament_infos = 0
+        #TODO add function to get tournament rounds and infos and pass them as a data file into the next page
         curr_screen = self.parent.get_screen('TourneyList')
         curr_screen.manager.current = "TournamentScreen"
 
@@ -349,8 +357,9 @@ class TournamentScreen(Screen):
         )
         self.popuptable.open()
 
-    def change_screen(self):
+    def change_screen(self, t_id: str):
         curr_screen = self.parent.get_screen('TournamentList')
+        print(t_id)
         curr_screen.manager.current = "TournamentScreen"
 
 
@@ -359,6 +368,7 @@ class ScreenManager(ScreenManager):
 
 
 class TourneyApp(MDApp):
+    curr_tournament = None
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
