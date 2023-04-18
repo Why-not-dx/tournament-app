@@ -95,9 +95,10 @@ def create_tourney(t_type: str, t_name: str, t_date: str) -> int:
     except sqlite3.IntegrityError:
         return "This tournament can't be created"
 
-    query = f"SELECT t_id FROM tourneys WHERE t_name = ?"
-
-    return cur.execute(query, (t_name,)).fetchall()[0][0]
+    query = """SELECT MAX(t_id) FROM tourneys"""
+    id_from_new_entry = cur.execute(query).fetchall()[0][0]
+    print(id_from_new_entry)
+    return id_from_new_entry
 
 
 def get_tourneys_list(t_id=None, t_date=None, t_name=None):
@@ -159,6 +160,7 @@ def get_players_id(infos: list) -> list:
 
     return names.fetchall()
 
+
 def get_players_from_id(infos: list) -> list:
     """
     takes an id and returns the players reference in the data base in format:
@@ -167,11 +169,13 @@ def get_players_from_id(infos: list) -> list:
     players = cur.execute("""SELECT * FROM players WHERE (p_id = ?)""", infos)
     return players.fetchall()
 
+
 def read_players() -> list:
     """ get all registered players informations """
 
     call = cur.execute("""SELECT * FROM players""")
     return call.fetchall()
+
 
 def delete_players(p_ids: list) -> str:
     """delete players based on list of ids"""
@@ -203,6 +207,7 @@ def players_list(t_id: int) -> list:
     WHERE t_id = ?
     """
     return cur.execute(command, t_id).fetchall()
+
 
 def score_sort(scores: list) -> list:
     """

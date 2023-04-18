@@ -9,6 +9,7 @@ import my_tourneys as dab
 import pairing as pr
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
+from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.list import OneLineListItem, OneLineAvatarIconListItem, IconLeftWidget, IRightBodyTouch
@@ -70,6 +71,7 @@ class PlayersList(Screen):
 
     def clear_texts(self):
         """emptying boxes of the page"""
+
         self.ids.search_id.text = ""
         self.ids.search_name.text = ""
         self.ids.search_surname.text = ""
@@ -227,7 +229,7 @@ class TourneyList(Screen):
         """ to clear everty input on load of the page"""
         self.ids.search_id_tourney.text = ""
         self.ids.search_name_tourney.text = ""
-        self.ids.search_tourney_date .text= ""
+        self.ids.search_tourney_date.text = ""
 
     def feed_list(self, t_id=None, t_date=None, t_name=None):
         """feed the list of tournaments in the scrollview / MDList of
@@ -323,7 +325,6 @@ class TourneyList(Screen):
         else:
             self.tourneys_check.remove(t_id)
 
-
     def show_alert_dialog_deletion(self):
         self.dialog = None
         if not self.tourneys_check:
@@ -361,6 +362,15 @@ class NewTourney(Screen):
         super(NewTourney, self).__init__(**kwargs)
         self.dialog = None
 
+    def on_pre_enter(self, *args):
+        super().on_pre_enter(self, *args)
+        self.clear_texts()
+
+    def clear_texts(self):
+        self.ids.search_tourney_date.text = ""
+        self.ids.new_tourney_name.text = ""
+        self.ids.new_tourney_format.text = ""
+
     def on_save(self, instance, value, date_range):
         """
         event called when the "ok" dialog boc button is clicked
@@ -386,15 +396,16 @@ class NewTourney(Screen):
         date_dialog.open()
 
     def show_alert_dialog_creation(self, t_id=None):
-        if not self.dialog:
-            if not t_id:
-                self.dialog = MDDialog(
-                    text="This tournament cannot be created \nMissing informations",
-                )
-            elif t_id:
-                self.dialog = MDDialog(
-                    text=f"Your tournament was created with id number {t_id}"
-                )
+
+        self.dialog = None
+        if not t_id:
+            self.dialog = MDDialog(
+                text="This tournament cannot be created \nMissing informations",
+            )
+        elif t_id:
+            self.dialog = MDDialog(
+                text=f"Your tournament was created with id number {t_id}"
+            )
         self.dialog.open()
 
     def create_tournament(self, t_name, t_format, t_date):
@@ -409,6 +420,7 @@ class NewTourney(Screen):
         else:
             new_tourney = dab.create_tourney(t_format, t_name, t_date)
             self.show_alert_dialog_creation(new_tourney)
+            self.clear_texts()
 
 
 class TournamentScreen(Screen):
@@ -429,30 +441,6 @@ class TournamentScreen(Screen):
                                 )
             )
 
-    def add_table(self):
-        self.data_tables = MDDataTable(
-            size_hint=(1, 1),
-            pos_hint={"center_y": .5, "center_x": .5},
-            use_pagination=True,
-            check=True,
-            # name column, width column, sorting function column(optional), custom tooltip
-            column_data=[
-                ("No.", dp(25), None, "Custom tooltip"),
-                ("Status", dp(25)),
-                ("Signal Name", dp(25)),
-                ("Severity", dp(25)),
-                ("Stage", dp(25)),
-                ("Schedule", dp(25), lambda *args: print("Sorted using Schedule")),
-                ("Team Lead", dp(25)),
-            ],
-        )
-        self.popuptable = Popup(
-            title="Standings - round X",
-            content=self.data_tables,
-            size_hint=(.8, .8)
-        )
-        self.popuptable.open()
-
     def change_screen(self, t_id: str):
         curr_screen = self.parent.get_screen('TournamentList')
         print(t_id)
@@ -465,6 +453,7 @@ class ScreenManager(ScreenManager):
 
 class TourneyApp(MDApp):
     curr_tournament = None
+
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
@@ -474,16 +463,6 @@ class TourneyApp(MDApp):
             dab.db_create()
         except sqlite3.OperationalError:
             pass
-
-    def player_search(self):
-        # Because of the screen system, calling function returns an empty list
-        # you need to use the root.get_screen('name of screen') to access it like you would access root.
-        curr_screen = self.root.get_screen('PlayersList')
-        # ToDO: replace code with sql query of all players
-        for x in range(10):
-            curr_screen.ids.players_list.add_widget(
-                OneLineListItem(text=f"Single-line item {x}")
-            )
 
     def light_dark_change(self):
         """change the light or dark mode"""

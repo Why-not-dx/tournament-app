@@ -15,7 +15,7 @@
             MDBoxLayout:
                 padding: dp(25)
                 spacing: dp(25)
-                size_hint_y: .5
+                size_hint_y: .4
 
                 TitleLabel:
                     pos_hint: {"center_y": .5}
@@ -25,6 +25,7 @@
             MDGridLayout:
                 cols: 2
                 size_hint: (.9, .3)
+                spacing: 20
                 pos_hint: {"center_x": .5}
 
                 MDLabel:
@@ -102,24 +103,38 @@
             MDBoxLayout:
                 adaptive_height: True
                 orientation: "vertical"
-                size_hint_y: .2
+                size_hint_x: .9
+                pos_hint: {"center_x":.5}
                 spacing: dp(20)
 
                 ScreenButton:
                     adaptive_height: True
                     size_hint_x: .7
                     spacing: dp(25)
-                    pos_hint: {"x":.15}
+                    pos_hint: {"center_x":.5}
                     text: "CREATE TOURNAMENT"
                     on_press:
                         root.create_tournament(new_tourney_name.text,new_tourney_format.text,search_tourney_date.text)
 
-                ScreenButton:
+                MDBoxLayout:
+                    orientation: "horizontal"
                     adaptive_height: True
-                    size_hint_x: .3
-                    spacing: dp(25)
-                    pos_hint: {"right":.85}
-                    text: "Back"
-                    on_press:
-                        root.manager.current = "MainPage"
-                        root.manager.transition.direction = "left"
+                    size_hint_x: .9
+                    pos_hint: {"center_x":.5}
+                    spacing: dp(20)
+
+                    ScreenButton:
+                        size_hint: (.5, 1)
+                        spacing: dp(25)
+                        pos_hint: {"center_x":.5}
+                        text: "CLEAR FIELDS"
+                        on_press:
+                            root.clear_texts()
+
+                    ScreenButton:
+                        size_hint: (.5, 1)
+                        pos_hint: {"center_x":.5}
+                        text: "Back"
+                        on_press:
+                            root.manager.current = "MainPage"
+                            root.manager.transition.direction = "left"
