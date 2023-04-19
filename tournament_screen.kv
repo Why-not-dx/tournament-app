@@ -6,20 +6,22 @@
             title: "TOURNAMENT INFOS"
 
         BoxLayout:
-            padding: 20
+            padding: 35
             spacing: 25
             orientation: "vertical"
             TitleLabel:
+                id: tournament_page_name
                 adaptive_height: True
                 text: "Tournament's name"
+                pos_hint: {"center_x": .5}
                 font: "M6"
-                halign: "left"
+                font_size: "32sp"
+                halign: "center"
                 valign: "top"
 
             MDBoxLayout:
                 adaptive_height: True
                 orientation: "horizontal"
-                padding: 20
                 spacing: 30
 
                 MyButton:
@@ -30,18 +32,26 @@
                     size_hint_x: .3
                     pos_hint: {"center_x": .5}
                     text: "Players"
+                    on_release:
+                        root.open_players_table()
+            MDBoxLayout:
+                adaptive_height: True
+                orientation: "horizontal"
+                spacing: 30
+                MyButton:
+                    size_hint_x: .3
+                    pos_hint: {"right": 1}
+                    text: "Add player"
+
                 MyButton:
                     size_hint_x: .3
                     pos_hint: {"right": 1}
                     text: "Next round"
-                    on_release: root.feed_list()
 
             MDScrollView:
                 adaptive_height: True
                 MDList:
                     id: rounds_list
-
-
 
             ScreenButton:
                 adaptive_height: True

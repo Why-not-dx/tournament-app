@@ -134,7 +134,6 @@ def get_tourneys_list(t_id=None, t_date=None, t_name=None):
             (t_date,)
             )
 
-
     return tournament_list.fetchall()
 
 
@@ -201,13 +200,25 @@ def players_list(t_id: int) -> list:
     """
     command = """
     SELECT p_id 
-    FROM players_matches 
+    FROM player_matches 
     INNER JOIN matches
     ON player_matches.m_id = matches.m_id
     WHERE t_id = ?
     """
-    return cur.execute(command, t_id).fetchall()
+    query = cur.execute(command, (t_id,)).fetchall()
+    return [p[0] for p in query]
 
+
+def get_rounds(t_id: str) -> list:
+    """
+    takes a tournament id and returns the list of rounds
+    """
+    command = """
+    SELECT round 
+    FROM matches 
+    WHERE t_id = ?
+    """
+    return cur.execute(command, t_id).fetchall()
 
 def score_sort(scores: list) -> list:
     """
@@ -246,8 +257,13 @@ def enter_results(results: list) -> str:
 
     return "Points updated"
 
+
+def get_rounds(t_id: int) -> list:
+    command = """SELECT DISTINCT round FROM matches WHERE t_id = ?"""
+    return cur.execute(command, (t_id,)).fetchall()
+
 if __name__ == "__main__":
-    db_create()
+    # db_create()
     # info_list = [
     #     ('Anthony', 'Guts'),
     #     ('Joey', 'Ryoma'),
@@ -256,31 +272,34 @@ if __name__ == "__main__":
     #     ("Ranni", "Zewich"),
     #     ("Neils", "Bohred")
     # ]
-    info_list = [
-        ('Anthony', 'Guts'),
-        ('Joey', 'Ryoma'),
-        ('Mai', 'Valentine'),
-        ("Ryo", "Saeba"),
-        ("Ranni", "Zewich"),
-        ("Neils", "Bohred"),
-        ("Jensen", "Kimmit")
-    ]
-    enroll_players(info_list)
-    play_list = read_players()
-    id_list = [p[0] for p in play_list]
+    # info_list = [
+    #     ('Anthony', 'Guts'),
+    #     ('Joey', 'Ryoma'),
+    #     ('Mai', 'Valentine'),
+    #     ("Ryo", "Saeba"),
+    #     ("Ranni", "Zewich"),
+    #     ("Neils", "Bohred"),
+    #     ("Jensen", "Kimmit")
+    # ]
+    # for player in info_list:
+    #     enroll_players(player)
+    # play_list = read_players()
+    # id_list = [p[0] for p in play_list]
     # print("Players id table = ", id_list)
-    tourney_id = create_tourney("classic", "monday_tourney")
-    print("tourney id = ", tourney_id)
-    print("pairing process : ", pr.pairing_process(tourney_id, 1, id_list))
+    # tourney_id = create_tourney("classic", "monday_tourney", "03-12-2023")
+    # print("tourney id = ", tourney_id)
+    # print("pairing process : ", pr.pairing_process(1, 2, id_list))
 
-    print("get tourney list : ", get_tourneys_list())
+    # print("get tourney list : ", get_tourneys_list())
 
     # kivy table needs a tuple with all the row data : player1, player2...
-    next_round = pr.next_round_pairing(1, 1)
+    # next_round = pr.next_round_pairing(1, 2)
 
-    print("next round func : ", next_round[0], next_round[1])
-    print("pairing #2", pr.pairing_process(1, 2, bye_next_round=next_round[1], pairing_next_round=next_round[0]))
+    # print("next round func : ", next_round[0], next_round[1])
+    # print("pairing #2", pr.pairing_process(1, 2, bye_next_round=next_round[1], pairing_next_round=next_round[0]))
     # results = [(1, 2, 1, 4, 7),
     #            (2, 0, 1, 5, 1),
     #            (1, 1, 1, 2, 6)]
     # enter_results(results)
+    # print(get_rounds(1))
+    print(players_list(1))

@@ -1,8 +1,8 @@
 # Link all the tournament functions into the GUI
 import sqlite3
 
-from kivy.properties import ObjectProperty
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.selectioncontrol import MDCheckbox
 import my_tourneys as dab
@@ -299,7 +299,6 @@ class TourneyList(Screen):
         """
         print("canceled")
 
-
     def show_date_picker(self):
         date_dialog = MDDatePicker(min_year=2022, max_year=2030)
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
@@ -307,8 +306,7 @@ class TourneyList(Screen):
 
     def change_screen(self, t_id: str):
         t_id = t_id.split("|")[0]
-        tournament_infos = 0
-        #TODO add function to get tournament rounds and infos and pass them as a data file into the next page
+        MDApp.get_running_app().tournament_id = t_id
         curr_screen = self.parent.get_screen('TourneyList')
         curr_screen.manager.current = "TournamentScreen"
 
@@ -426,18 +424,33 @@ class NewTourney(Screen):
 class TournamentScreen(Screen):
     def __init__(self, **kwargs):
         super(TournamentScreen, self).__init__(**kwargs)
+        self.curr_tournament = None
+        self.data_tables = None
+        #TODO add the functions to get rounds and feed the MDList
+        #TODO add the function to get players from this tourney
+        #TODO add the function and Button to add players to the tourney
 
-    # def on_pre_enter(self):
-    #     super().on_pre_enter(self)
-    #     # TODO: make the function feed the players list without the error
-    #     self.feed_list()
+    def on_pre_enter(self):
+        super().on_pre_enter(self)
+        # self.feed_list()
+        self.curr_tournament = int(MDApp.get_running_app().tournament_id)
+        t_name = dab.get_tourneys_list(t_id=self.curr_tournament)[0][3]
+        self.ids.tournament_page_name.text = t_name
+        print(self.curr_tournament, t_name)
+        self.feed_rounds()
 
-    def feed_list(self):
+    def feed_rounds(self):
+        print(self.curr_tournament, type(self.curr_tournament))
+        rounds_list = dab.get_rounds(self.curr_tournament)
+        rounds_list = [r[0] for r in rounds_list]
+        self.feed_list(rounds_list)
+
+    def feed_list(self, rounds):
         curr_screen = self.parent.get_screen('TournamentScreen')
-        for x in range(10):
+        for r in rounds:
             curr_screen.ids.rounds_list.add_widget(
-                OneLineListItem(text=f"Single-line item {x}",
-                                on_release=lambda x: self.change_screen()
+                OneLineListItem(text=f"Round :  {r}",
+                                on_release=lambda x: self.change_screen()  #TODO create pop up with results of round
                                 )
             )
 
@@ -446,19 +459,66 @@ class TournamentScreen(Screen):
         print(t_id)
         curr_screen.manager.current = "TournamentScreen"
 
+    def players_list(self) -> list:
+        players = dab.players_list(self.curr_tournament)
+        players_list = []
+        for p in players:
+            players_list.append(dab.get_players_from_id((p,))[0])
+        print(players_list)
+
+        return players_list
+
+    def open_players_table(self):
+        """ open a MDDataTable with players informations"""
+        curr_screen = self.parent.get_screen('TournamentScreen')
+
+        self.box = MDBoxLayout(
+            orientation="vertical",
+            pos_hint={"center_x": .5, "bottom": .2},
+            size_hint=(1, .9),
+            md_bg_color=(1,1,1,.2)
+        )
+        self.data_tables = MDDataTable(
+            use_pagination=True,
+            column_data=[
+                ("ID", dp(30)),("NAME", dp(30)),("SURNAME", dp(30))
+            ],
+            size_hint=(.9, .8),
+            pos_hint={"center_x": .5, "center_y": .5}
+        )
+        self.butt = MDIconButton(
+            icon="close-circle",
+            md_bg_color=(122/255, 48/255, 108/255, 1),
+            user_font_size=dp(25),
+            on_release=lambda x: self.remove_players_table(),
+            pos_hint={"right": .95}
+        )
+        self.box.add_widget(self.butt)
+        self.box.add_widget(self.data_tables)
+
+        curr_screen.add_widget(self.box)
+
+    def remove_players_table(self):
+        curr_screen = self.parent.get_screen('TournamentScreen')
+        curr_screen.remove_widget(self.box)
+
+
+
+
 
 class ScreenManager(ScreenManager):
     ...
 
 
 class TourneyApp(MDApp):
-    curr_tournament = None
+    tournament_id = None
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
         self.theme_cls.accent_palette = "DeepPurple"
         self.theme_cls.accent_hue = "300"
+
         try:
             dab.db_create()
         except sqlite3.OperationalError:
