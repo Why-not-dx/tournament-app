@@ -1,3 +1,26 @@
+#: import Factory kivy.factory.Factory
+
+<MyPopup@Popup>:
+    auto_dismiss: False
+    size_hint: (.6, .2)
+    title: f"Add those players to tournament {app.tournament_id}"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDBoxLayout:
+            orientation: "horizontal"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            MDRaisedButton:
+                pos_hint: {"center_x": .5, "top": .9}
+                text: "YES"
+                on_release: print(t_id_input.text)
+            MDIconButton:
+                icon: "close-circle"
+                icon_color: (122/255, 48/255, 108/255, 1)
+                pos_hint: {"right": 1, "top": .9}
+                on_release: root.dismiss()
+
+
+
 <PlayersList>:
     name: "PlayersList"
     MDBoxLayout:
@@ -122,9 +145,21 @@
             MDBoxLayout:
                 orientation: "horizontal"
                 adaptive_height: True
-                size_hint_x: .66
-                pos_hint: {"right": 1}
+                size_hint_x: 1
                 spacing: 20
+                pos_hint: {"left": 0}
+
+
+                ScreenButton:
+                    size_hint: (None, None)
+                    width: root.width * .25
+                    pos_hint: {"center_x": .5}
+                    text: "Add to tournament"
+                    on_press:
+                        root.show_add_players_dialog()
+                        #root.popup_add_to_tourney()
+                        #Factory.MyPopup().open()
+
 
                 ScreenButton:
                     size_hint: (None, None)
@@ -143,5 +178,3 @@
                     on_press:
                         root.manager.current = "MainPage"
                         root.manager.transition.direction = "right"
-
-

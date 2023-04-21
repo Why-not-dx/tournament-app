@@ -77,7 +77,7 @@ def player_matches(m_ids: list, pairing: list, bye_player: int) -> None:
     cur.executemany(p_matches, matches)
 
 
-def pairing_process(t_id: int, t_round: int, players: list = None, bye_next_round:int = None, pairing_next_round: list = None) -> (list, list):
+def pairing_process(t_id: int, t_round: int, players: list = None, bye_next_round: int = None, pairing_next_round: list = None) -> (list, list):
     """
     Main process calling all pairing function in order
     """

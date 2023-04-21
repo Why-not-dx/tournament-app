@@ -192,6 +192,39 @@ class PlayersList(Screen):
         self.feed_list()
         self.dialog.dismiss()
 
+    def show_add_players_dialog(self):
+        """pop up asking for the tournament to feed
+        show a MDList of the tourneys in the app"""
+
+        curr_t = MDApp.get_running_app().tournament_id
+        if not curr_t:
+            self.dialog = MDDialog(
+                text="Please choose a tournament in the tournament page"
+            )
+        else:
+            self.dialog = MDDialog(
+                text=f"Add those players to tournament {curr_t} ?",
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda x: self.dialog.dismiss()
+                    ),
+                    MDFlatButton(
+                        text="OK",
+                        md_bg_color=(122 / 255, 48 / 255, 108 / 255, .5),
+                        on_release=lambda x: print("Ok")
+                    ),
+                ],
+            )
+        self.dialog.open()
+
+    def add_to_tourney(self, t_id: int):
+        """takes a list of players and adds them to the tournament,
+         the first round will immediatly be generated"""
+        p_ids = [(x,) for x in self.players_check]
+        print(p_ids)
+
     def checkbox_check(self, value, p_id):
         if value:
             self.players_check.append(p_id)
@@ -476,7 +509,7 @@ class TournamentScreen(Screen):
             orientation="vertical",
             pos_hint={"center_x": .5, "bottom": .2},
             size_hint=(1, .9),
-            md_bg_color=(1,1,1,.2)
+            md_bg_color=(1, 1, 1, .2)
         )
         self.data_tables = MDDataTable(
             use_pagination=True,

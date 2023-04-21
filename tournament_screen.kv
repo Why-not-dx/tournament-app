@@ -34,6 +34,7 @@
                     text: "Players"
                     on_release:
                         root.open_players_table()
+
             MDBoxLayout:
                 adaptive_height: True
                 orientation: "horizontal"
@@ -42,6 +43,9 @@
                     size_hint_x: .3
                     pos_hint: {"right": 1}
                     text: "Add player"
+                    on_release:
+                        root.manager.current = "PlayersList"
+                        root.manager.transition.direction = "right"
 
                 MyButton:
                     size_hint_x: .3
