@@ -1,4 +1,4 @@
-import random, sqlite3, datetime, itertools
+import random, sqlite3, itertools
 con = sqlite3.connect("tourney_db.db")
 cur = con.cursor()
 

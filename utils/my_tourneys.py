@@ -8,8 +8,7 @@
 # visualisation for tournaments, pairing, points
 # Class system for tourneys to make it customisable later
 
-import sqlite3, datetime
-import pairing as pr
+import sqlite3
 
 con = sqlite3.connect("tourney_db.db")
 cur = con.cursor()

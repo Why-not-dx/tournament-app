@@ -1,9 +1,15 @@
 #:set MainPurple (122/255, 48/255, 108/255, 1)
 
-#:include tourney_list.kv
-#:include new_tourney.kv
-#:include players.kv
-#:include tournament_screen.kv
+#: import TournamentScreen screens.tournament_screen
+#: import PlayersList screens.players_list
+#: import TournamentList screens.tournament_list
+#: import NewTourney screens.new_tournament
+#: import MainPage screens.main_page
+
+#:include screens/tourney_list.kv
+#:include screens/new_tourney.kv
+#:include screens/players.kv
+#:include screens/tournament_screen.kv
 
 ScreenManager:
     MainPage:
